@@ -234,7 +234,6 @@ components:
         - fullName
         - email
         - phone
-        - countryCity
         - customerType
         - productSelection
         - quantity
@@ -250,8 +249,13 @@ components:
           minLength: 3
         countryCity:
           type: string
-          minLength: 1
-          description: Country / city
+          description: Legacy combined country / city field
+        country:
+          type: string
+          description: Country name
+        city:
+          type: string
+          description: City name
         customerType:
           $ref: "#/components/schemas/CustomerType"
         productSelection:
@@ -300,6 +304,12 @@ components:
           type: string
         countryCity:
           type: string
+        country:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
         customerType:
           $ref: "#/components/schemas/CustomerType"
         productSelection:

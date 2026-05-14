@@ -13,6 +13,12 @@ router.post("/orders", async (req, res) => {
   }
   const input = parsed.data;
   const orderReference = generateReference();
+  const country = input.country ?? null;
+  const city = input.city ?? null;
+  const countryCity =
+    country && city
+      ? `${city}, ${country}`
+      : input.countryCity ?? (country ?? city ?? "");
   const [row] = await db
     .insert(ordersTable)
     .values({
@@ -20,7 +26,9 @@ router.post("/orders", async (req, res) => {
       fullName: input.fullName,
       email: input.email,
       phone: input.phone,
-      countryCity: input.countryCity,
+      countryCity,
+      country,
+      city,
       customerType: input.customerType,
       productSelection: input.productSelection,
       quantity: input.quantity,

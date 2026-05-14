@@ -25,12 +25,13 @@ export const createOrderBodyPhoneMin = 3;
 
 
 
-
 export const CreateOrderBody = zod.object({
   "fullName": zod.string().min(1),
   "email": zod.string().email(),
   "phone": zod.string().min(createOrderBodyPhoneMin),
-  "countryCity": zod.string().min(1).describe('Country \/ city'),
+  "countryCity": zod.string().optional().describe('Legacy combined country \/ city field'),
+  "country": zod.string().optional().describe('Country name'),
+  "city": zod.string().optional().describe('City name'),
   "customerType": zod.enum(['patient', 'caregiver', 'clinic', 'hospital', 'research', 'other']),
   "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "quantity": zod.number().min(1),
@@ -106,6 +107,8 @@ export const ListOrdersResponseItem = zod.object({
   "email": zod.string(),
   "phone": zod.string(),
   "countryCity": zod.string(),
+  "country": zod.string().nullish(),
+  "city": zod.string().nullish(),
   "customerType": zod.enum(['patient', 'caregiver', 'clinic', 'hospital', 'research', 'other']),
   "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "quantity": zod.number(),
@@ -135,6 +138,8 @@ export const GetOrdersSummaryResponse = zod.object({
   "email": zod.string(),
   "phone": zod.string(),
   "countryCity": zod.string(),
+  "country": zod.string().nullish(),
+  "city": zod.string().nullish(),
   "customerType": zod.enum(['patient', 'caregiver', 'clinic', 'hospital', 'research', 'other']),
   "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "quantity": zod.number(),
@@ -159,6 +164,8 @@ export const GetOrderResponse = zod.object({
   "email": zod.string(),
   "phone": zod.string(),
   "countryCity": zod.string(),
+  "country": zod.string().nullish(),
+  "city": zod.string().nullish(),
   "customerType": zod.enum(['patient', 'caregiver', 'clinic', 'hospital', 'research', 'other']),
   "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "quantity": zod.number(),
@@ -186,6 +193,8 @@ export const UpdateOrderStatusResponse = zod.object({
   "email": zod.string(),
   "phone": zod.string(),
   "countryCity": zod.string(),
+  "country": zod.string().nullish(),
+  "city": zod.string().nullish(),
   "customerType": zod.enum(['patient', 'caregiver', 'clinic', 'hospital', 'research', 'other']),
   "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "quantity": zod.number(),

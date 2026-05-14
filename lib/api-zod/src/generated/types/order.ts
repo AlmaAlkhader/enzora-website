@@ -16,6 +16,8 @@ export interface Order {
   email: string;
   phone: string;
   countryCity: string;
+  country?: string | null;
+  city?: string | null;
   customerType: CustomerType;
   productSelection: ProductSelection;
   quantity: number;

@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateOrderBody } from "@workspace/api-zod";
-import { useCreateOrder, type CreateOrderInput, ProductSelection } from "@workspace/api-client-react";
+import { z } from "zod";
+import { useCreateOrder, ProductSelection } from "@workspace/api-client-react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,32 @@ import {
   Menu, X, CheckCircle2, Heart, Shield, ShieldCheck,
   Sparkles, ArrowRight, Package, Building2, Lock, Mail
 } from "lucide-react";
+
+const PALESTINIAN_CITIES = [
+  "Ramallah", "Al-Bireh", "Jerusalem", "Nablus", "Hebron",
+  "Bethlehem", "Jenin", "Tulkarm", "Qalqilya", "Salfit",
+  "Jericho", "Tubas", "Gaza", "Khan Younis", "Rafah", "Other",
+];
+
+const PHONE_REGEX = /^(\+970[\s\-]?\d[\d\s\-]{6,14}|0\d{9,10})$/;
+
+const orderFormSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().regex(PHONE_REGEX, "Enter a valid Palestinian phone number, e.g. +970 59 000 0000 or 0590000000"),
+  country: z.string().min(1, "Country is required"),
+  city: z.string().min(1, "City is required"),
+  customCity: z.string().optional(),
+  customerType: z.enum(["patient", "caregiver", "clinic", "hospital", "research", "other"]),
+  productSelection: z.enum(["bandage_pack", "smart_device", "complete_package"]),
+  quantity: z.number().int().min(1),
+  message: z.string().optional(),
+}).refine(
+  (data) => data.city !== "Other" || (data.customCity && data.customCity.trim().length > 0),
+  { message: "Please enter your city", path: ["customCity"] },
+);
+
+type OrderFormValues = z.infer<typeof orderFormSchema>;
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -127,24 +153,40 @@ export default function Landing() {
 
   const orderMutation = useCreateOrder();
 
-  const form = useForm<CreateOrderInput>({
-    resolver: zodResolver(CreateOrderBody),
+  const form = useForm<OrderFormValues>({
+    resolver: zodResolver(orderFormSchema),
     defaultValues: {
       fullName: "",
       email: "",
       phone: "",
-      countryCity: "",
+      country: "Palestine",
+      city: "Ramallah",
+      customCity: "",
       customerType: "patient",
-      productSelection: ProductSelection.complete_package,
+      productSelection: ProductSelection.bandage_pack,
       quantity: 1,
       message: "",
     },
   });
 
   const selectedProduct = form.watch("productSelection");
+  const selectedCity = form.watch("city");
 
-  const onSubmit = (data: CreateOrderInput) => {
-    orderMutation.mutate({ data }, {
+  const onSubmit = (data: OrderFormValues) => {
+    const actualCity = data.city === "Other" ? (data.customCity ?? "") : data.city;
+    orderMutation.mutate({
+      data: {
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        country: data.country,
+        city: actualCity,
+        customerType: data.customerType,
+        productSelection: data.productSelection,
+        quantity: data.quantity,
+        message: data.message,
+      },
+    }, {
       onSuccess: (res) => {
         setOrderSuccessRef(res.orderReference);
         form.reset();
@@ -558,14 +600,14 @@ export default function Landing() {
                     <FormField control={form.control} name="fullName" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Full name</FormLabel>
-                        <FormControl><Input placeholder="Jane Doe" className="h-12" {...field} /></FormControl>
+                        <FormControl><Input placeholder="e.g. Ahmad Al-Khalidi" className="h-12" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="email" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Email</FormLabel>
-                        <FormControl><Input type="email" placeholder="jane@example.com" className="h-12" {...field} /></FormControl>
+                        <FormControl><Input type="email" placeholder="e.g. ahmad@example.com" className="h-12" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -575,17 +617,57 @@ export default function Landing() {
                     <FormField control={form.control} name="phone" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Phone number</FormLabel>
-                        <FormControl><Input type="tel" placeholder="+1 (555) 000-0000" className="h-12" {...field} /></FormControl>
+                        <FormControl><Input type="tel" placeholder="+970 59 000 0000" className="h-12" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="countryCity" render={({ field }) => (
+                    <FormField control={form.control} name="country" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Country / City</FormLabel>
-                        <FormControl><Input placeholder="United States, NY" className="h-12" {...field} /></FormControl>
+                        <FormLabel>Country</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-12">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Palestine">Palestine</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )} />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <FormField control={form.control} name="city" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-12">
+                              <SelectValue placeholder="Select city" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {PALESTINIAN_CITIES.map((c) => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    {selectedCity === "Other" && (
+                      <FormField control={form.control} name="customCity" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Enter your city</FormLabel>
+                          <FormControl><Input placeholder="Your city" className="h-12" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    )}
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
@@ -604,7 +686,13 @@ export default function Landing() {
                             <SelectItem value="complete_package">Complete Enzora Package - Device + bandage pack</SelectItem>
                           </SelectContent>
                         </Select>
-                        <p className="text-xs text-muted-foreground mt-1">Each bandage pack includes 5 bandages.</p>
+                        {selectedProduct === "bandage_pack" && (
+                          <div className="mt-2 rounded-lg bg-primary/5 border border-primary/10 px-3 py-2 space-y-0.5">
+                            <p className="text-xs font-medium text-primary">$20 per pack</p>
+                            <p className="text-xs text-muted-foreground">Each pack includes 5 bandages.</p>
+                            <p className="text-xs text-muted-foreground">Equivalent local payment options can be discussed after submission.</p>
+                          </div>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -647,7 +735,7 @@ export default function Landing() {
                     <FormItem>
                       <FormLabel>Message (optional)</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Any additional information..." className="resize-none h-32" {...field} />
+                        <Textarea placeholder="Any questions or additional details about your order..." className="resize-none h-32" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

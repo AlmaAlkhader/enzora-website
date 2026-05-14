@@ -15,6 +15,8 @@ export function serializeOrder(row: OrderRow) {
     email: row.email,
     phone: row.phone,
     countryCity: row.countryCity,
+    country: row.country ?? null,
+    city: row.city ?? null,
     customerType: row.customerType as
       | "patient"
       | "caregiver"

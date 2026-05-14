@@ -14,11 +14,12 @@ export interface CreateOrderInput {
   email: string;
   /** @minLength 3 */
   phone: string;
-  /**
-     * Country / city
-     * @minLength 1
-     */
-  countryCity: string;
+  /** Legacy combined country / city field */
+  countryCity?: string;
+  /** Country name */
+  country?: string;
+  /** City name */
+  city?: string;
   customerType: CustomerType;
   productSelection: ProductSelection;
   /** @minimum 1 */

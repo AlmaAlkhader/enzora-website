@@ -194,7 +194,16 @@ export default function AdminDashboard() {
                         <div className="text-xs text-muted-foreground">{o.phone}</div>
                       </TableCell>
                       <TableCell className="capitalize">{o.customerType}</TableCell>
-                      <TableCell>{o.countryCity}</TableCell>
+                      <TableCell>
+                        {o.country || o.city ? (
+                          <div>
+                            {o.country && <div className="font-medium text-sm">{o.country}</div>}
+                            {o.city && <div className="text-xs text-muted-foreground">{o.city}</div>}
+                          </div>
+                        ) : (
+                          <span className="text-sm">{o.countryCity || "—"}</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <div className="font-medium text-sm">{productLabel(o.productSelection)}</div>
                         {o.productSelection === "bandage_pack" && (

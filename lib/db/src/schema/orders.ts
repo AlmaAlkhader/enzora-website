@@ -2,11 +2,13 @@ import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
 
 export const ordersTable = pgTable("orders", {
   id: serial("id").primaryKey(),
-  orderReference: text("order_reference").notNull().unique(),
+  orderReference: text("reference").notNull().unique(),
   fullName: text("full_name").notNull(),
   email: text("email").notNull(),
   phone: text("phone").notNull(),
-  countryCity: text("country_city").notNull(),
+  countryCity: text("location").notNull(),
+  country: text("country"),
+  city: text("city"),
   customerType: text("customer_type").notNull(),
   productSelection: text("product_selection").notNull().default("bandage_pack"),
   quantity: integer("quantity").notNull(),
