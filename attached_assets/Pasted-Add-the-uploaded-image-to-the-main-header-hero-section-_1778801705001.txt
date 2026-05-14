@@ -1,0 +1,54 @@
+Add the uploaded image to the main header/hero section of the Enzora website.
+
+Use the image I uploaded as the main hero visual:
+enzora-hero-art.png
+
+Place it in the header/hero section on the right side for desktop, and below the hero text on mobile.
+
+Important design update:
+Adjust the image colors so it fits the Enzora website theme better.
+
+The image should match this visual identity:
+- Navy: #111F4F
+- Deep blue: #1B2A6B
+- Indigo: #6E75BF
+- Violet: #8879B8
+- Mint green: #19C89A
+- Pale background: #F5F8FF or #F8FAFF
+
+Do not make the image too bright or unrelated to the website.
+Make it blend with the soft premium med-tech design.
+
+Hero layout:
+Left side:
+- Small label: “Smart wound monitoring”
+- Main headline: “Smarter wound monitoring with a color-guided bandage and connected device.”
+- Supporting text:
+  “Enzora combines a color-guided wound bandage with an optional smart sensor device. The bandage supports simple visual monitoring, while the device reads color changes and sends updates to the mobile app for clearer home wound-care awareness.”
+- Buttons:
+  - “Buy Bandage Pack”
+  - “Order Device”
+
+Right side:
+- Show the uploaded hero image in a premium rounded card or floating visual container.
+- Add soft shadow.
+- Add subtle floating animation.
+- Add a soft indigo/mint glow behind it.
+- Keep it responsive.
+
+Image styling:
+- Use rounded corners if it is inside a card.
+- Add a soft gradient overlay if needed so it matches the website colors.
+- Do not stretch or distort the image.
+- Keep it high quality.
+- On mobile, make it full width and centered.
+
+If possible, add a CSS filter or overlay to make the blue/mint tones softer and closer to the Enzora theme.
+
+Also update the hero background:
+- Use a pale blue/white background.
+- Add subtle wave lines or gradient blobs inspired by the Enzora brand posts.
+- Keep the page clean and not crowded.
+
+Final result:
+The uploaded image should become the main visual of the website header and should look naturally integrated with the Enzora brand theme.
