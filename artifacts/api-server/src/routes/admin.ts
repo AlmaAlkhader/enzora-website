@@ -3,25 +3,38 @@ import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { AdminLoginBody, UpdateOrderStatusBody } from "@workspace/api-zod";
 import { db, ordersTable } from "@workspace/db";
 import {
-  getAdminPassword,
+  getAdminCredentials,
   issueAdminToken,
   requireAdmin,
+  verifyAdminCredentials,
 } from "../lib/auth";
 import { serializeOrder } from "../lib/orders";
 
 const router: IRouter = Router();
 
 router.post("/admin/login", (req, res) => {
+  if (!getAdminCredentials()) {
+    res.status(503).json({
+      error:
+        "Admin credentials not configured. Set ADMIN_EMAIL, ADMIN_PASSWORD, and SESSION_SECRET in Replit Secrets.",
+    });
+    return;
+  }
   const parsed = AdminLoginBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid login input" });
     return;
   }
-  if (parsed.data.password !== getAdminPassword()) {
-    res.status(401).json({ error: "Invalid password" });
+  if (!verifyAdminCredentials(parsed.data.email, parsed.data.password)) {
+    res.status(401).json({ error: "Invalid email or password" });
     return;
   }
-  res.json({ token: issueAdminToken() });
+  const token = issueAdminToken();
+  if (!token) {
+    res.status(503).json({ error: "Admin credentials not configured" });
+    return;
+  }
+  res.json({ token });
 });
 
 router.get("/admin/me", requireAdmin, (_req, res) => {

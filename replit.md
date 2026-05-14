@@ -9,7 +9,11 @@ _Replace the heading above with the project's name, and this line with one sente
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required env / secrets (configure under Tools → Secrets in Replit):
+  - `DATABASE_URL` — Postgres connection string
+  - `ADMIN_EMAIL` — email required to sign in to the `/admin` dashboard
+  - `ADMIN_PASSWORD` — password required to sign in to the `/admin` dashboard
+  - `SESSION_SECRET` — HMAC secret used to sign admin session tokens
 
 ## Stack
 

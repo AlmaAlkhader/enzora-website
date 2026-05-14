@@ -41,8 +41,12 @@ export const CreateOrderBody = zod.object({
 /**
  * @summary Admin login (password)
  */
+
+
+
 export const AdminLoginBody = zod.object({
-  "password": zod.string()
+  "email": zod.string().email(),
+  "password": zod.string().min(1)
 })
 
 export const AdminLoginResponse = zod.object({

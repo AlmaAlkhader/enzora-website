@@ -1,8 +1,11 @@
-import { useState } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAdminLogin } from "@workspace/api-client-react";
+import {
+  ApiError,
+  useAdminLogin,
+  type AdminLoginInput,
+} from "@workspace/api-client-react";
 import { AdminLoginBody } from "@workspace/api-zod";
 import { setAdminToken } from "@/lib/auth-fetch";
 import { useToast } from "@/hooks/use-toast";
@@ -17,30 +20,40 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
+type AdminLoginErrorBody = { error?: string };
+
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const loginMutation = useAdminLogin();
+  const loginMutation = useAdminLogin<ApiError<AdminLoginErrorBody>>();
 
-  const form = useForm({
+  const form = useForm<AdminLoginInput>({
     resolver: zodResolver(AdminLoginBody),
-    defaultValues: { password: "" },
+    defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = (data: any) => {
-    loginMutation.mutate({ data }, {
-      onSuccess: (res) => {
-        setAdminToken(res.token);
-        setLocation("/admin");
+  const onSubmit = (data: AdminLoginInput) => {
+    loginMutation.mutate(
+      { data },
+      {
+        onSuccess: (res) => {
+          setAdminToken(res.token);
+          setLocation("/admin");
+        },
+        onError: (err) => {
+          const isConfigError = err.status === 503;
+          toast({
+            title: "Login failed",
+            description:
+              isConfigError
+                ? err.data?.error ??
+                  "Admin credentials are not configured on the server."
+                : "Invalid email or password",
+            variant: "destructive",
+          });
+        },
       },
-      onError: () => {
-        toast({
-          title: "Login failed",
-          description: "Invalid credentials",
-          variant: "destructive",
-        });
-      }
-    });
+    );
   };
 
   return (
@@ -49,10 +62,23 @@ export default function AdminLogin() {
         <div className="text-center space-y-3">
           <img src={`${import.meta.env.BASE_URL}enzora-logo.png`} alt="Enzora" className="h-12 w-auto mx-auto" />
           <h1 className="text-xl font-semibold tracking-tight text-primary">Admin Access</h1>
-          <p className="text-muted-foreground text-sm">Enter your password to access the dashboard</p>
+          <p className="text-muted-foreground text-sm">Enter your email and password to access the dashboard</p>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="admin@example.com" autoComplete="username" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="password"
@@ -60,7 +86,7 @@ export default function AdminLogin() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <Input type="password" placeholder="••••••••" autoComplete="current-password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
