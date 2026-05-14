@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { SocialIcons } from "@/components/SocialIcons";
 import {
   Menu, X, Activity, Smartphone, Clock, Bell, Circle, CheckCircle2,
   Navigation, Heart, Shield, ShieldCheck, Wifi, Eye, BellRing, LineChart,
@@ -198,6 +199,12 @@ export default function Landing() {
             <button onClick={() => scrollTo("app")} className="text-left font-medium p-2">App</button>
             <button onClick={() => scrollTo("faq")} className="text-left font-medium p-2">FAQ</button>
             <Button onClick={() => scrollTo("order")} className="w-full">Order Now</Button>
+            <div className="pt-3 mt-1 border-t border-primary/10">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 px-2">Follow Enzora</p>
+              <div className="px-2">
+                <SocialIcons variant="onLight" size="md" />
+              </div>
+            </div>
           </div>
         )}
       </nav>
@@ -664,6 +671,10 @@ export default function Landing() {
           <motion.div variants={fadeUp} className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-3 tracking-tight">Order Enzora</h2>
             <p className="text-primary-foreground/85 text-lg">Choose your package and our team will follow up shortly.</p>
+            <div className="mt-6 flex flex-col items-center gap-2">
+              <p className="text-xs uppercase tracking-wider text-primary-foreground/70">Connect with us</p>
+              <SocialIcons variant="onDark" size="sm" className="justify-center" />
+            </div>
           </motion.div>
 
           <motion.div variants={fadeUp} className="bg-white text-foreground p-8 md:p-12 rounded-[2rem] shadow-2xl">
@@ -831,7 +842,7 @@ export default function Landing() {
       <footer className="bg-slate-950 text-white pt-16 pb-8 border-t border-slate-800 relative overflow-hidden">
         <img src={LOGO_SRC} alt="" aria-hidden className="absolute -right-16 -bottom-16 h-72 opacity-[0.04]" />
         <div className="max-w-7xl mx-auto px-6 relative">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
+          <div className="grid md:grid-cols-5 gap-8 mb-12">
             <div className="md:col-span-2 space-y-4">
               <div className="flex items-center gap-3">
                 <img src={LOGO_SRC} alt="Enzora" className="h-10 w-auto brightness-0 invert" />
@@ -855,6 +866,10 @@ export default function Landing() {
               <ul className="space-y-3 text-gray-400 text-sm">
                 <li><a href="mailto:hello@enzora.health" className="hover:text-white transition-colors">hello@enzora.health</a></li>
               </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-base mb-4">Follow Enzora</h4>
+              <SocialIcons variant="onDark" size="md" />
             </div>
           </div>
 

@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { SocialIcons } from "@/components/SocialIcons";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 const productLabel = (p?: string | null) => {
@@ -101,12 +102,17 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50/30">
-      <header className="bg-white border-b px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+      <header className="bg-white border-b px-6 py-4 flex items-center justify-between sticky top-0 z-10 gap-4">
         <div className="flex items-center gap-3">
           <img src={`${import.meta.env.BASE_URL}enzora-logo.png`} alt="Enzora" className="h-9 w-auto" />
           <span className="text-lg font-semibold text-primary hidden sm:inline">Admin</span>
         </div>
-        <Button variant="outline" onClick={handleLogout}>Log out</Button>
+        <div className="flex items-center gap-4">
+          <div className="hidden lg:block">
+            <SocialIcons variant="onLight" size="sm" />
+          </div>
+          <Button variant="outline" onClick={handleLogout}>Log out</Button>
+        </div>
       </header>
 
       <main className="p-6 max-w-7xl mx-auto space-y-8">
