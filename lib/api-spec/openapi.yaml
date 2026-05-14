@@ -3,20 +3,23 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Enzora API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: orders
+    description: Public order/contact requests
+  - name: admin
+    description: Admin-protected order management
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +27,152 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /orders:
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Submit a public order/contact request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderConfirmation"
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login (password)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+
+  /admin/me:
+    get:
+      operationId: adminMe
+      tags: [admin]
+      summary: Validate admin token
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminMe"
+
+  /admin/orders:
+    get:
+      operationId: listOrders
+      tags: [admin]
+      summary: List orders (admin)
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/OrderStatus"
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  /admin/orders/summary:
+    get:
+      operationId: getOrdersSummary
+      tags: [admin]
+      summary: Aggregate counts and recent activity
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersSummary"
+
+  /admin/orders/{id}:
+    get:
+      operationId: getOrder
+      tags: [admin]
+      summary: Get a single order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+    patch:
+      operationId: updateOrderStatus
+      tags: [admin]
+      summary: Update order status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderStatusInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+    delete:
+      operationId: deleteOrder
+      tags: [admin]
+      summary: Delete an order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +180,141 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    CustomerType:
+      type: string
+      enum: [patient, caregiver, clinic, hospital, research, other]
+
+    OrderStatus:
+      type: string
+      enum: [new, contacted, confirmed, completed, rejected]
+
+    CreateOrderInput:
+      type: object
+      required:
+        - fullName
+        - email
+        - phone
+        - location
+        - customerType
+        - quantity
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          minLength: 3
+        location:
+          type: string
+          minLength: 1
+          description: Country / city
+        customerType:
+          $ref: "#/components/schemas/CustomerType"
+        quantity:
+          type: integer
+          minimum: 1
+        message:
+          type: string
+
+    OrderConfirmation:
+      type: object
+      required: [id, reference, status]
+      properties:
+        id:
+          type: integer
+        reference:
+          type: string
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+
+    Order:
+      type: object
+      required:
+        - id
+        - reference
+        - fullName
+        - email
+        - phone
+        - location
+        - customerType
+        - quantity
+        - status
+        - createdAt
+      properties:
+        id:
+          type: integer
+        reference:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        location:
+          type: string
+        customerType:
+          $ref: "#/components/schemas/CustomerType"
+        quantity:
+          type: integer
+        message:
+          type: string
+          nullable: true
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateOrderStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+
+    AdminLoginInput:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+
+    AdminSession:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+
+    AdminMe:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+
+    OrdersSummary:
+      type: object
+      required: [total, byStatus, recent]
+      properties:
+        total:
+          type: integer
+        byStatus:
+          type: object
+          required: [new, contacted, confirmed, completed, rejected]
+          properties:
+            new: { type: integer }
+            contacted: { type: integer }
+            confirmed: { type: integer }
+            completed: { type: integer }
+            rejected: { type: integer }
+        recent:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"

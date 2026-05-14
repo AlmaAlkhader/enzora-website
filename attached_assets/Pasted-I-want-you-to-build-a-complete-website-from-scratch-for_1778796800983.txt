@@ -1,0 +1,362 @@
+I want you to build a complete website from scratch for a medical technology startup called Enzora.
+
+This is a new Replit project. Do not assume there are existing files, old components, Firebase functions, or previous code. Build everything needed from the beginning.
+
+Project overview:
+Enzora is a smart infection-monitoring bandage system. The product includes a compact sensor device placed above a wound bandage and a connected mobile app. The device monitors wound bandage color changes and sends updates to the app, helping patients, caregivers, and healthcare providers notice changes earlier and know when to seek medical advice.
+
+Important:
+Do not describe this as a preorder website.
+This is a product-selling and company website for Enzora.
+Use words like:
+- Order Now
+- Buy Enzora
+- Request Device
+- Contact Sales
+- Get Enzora
+
+Do not use:
+- Preorder
+- Waitlist
+- Coming soon only
+- Beta only
+
+Medical wording:
+Do not claim that Enzora diagnoses, treats, cures, or guarantees infection detection.
+Use safe wording such as:
+- “monitors wound bandage color changes”
+- “supports early awareness”
+- “helps patients and caregivers know when to seek medical advice”
+- “supports wound-care monitoring at home”
+Add a disclaimer:
+“Enzora is a monitoring support tool and does not replace professional medical advice, diagnosis, or treatment.”
+
+Technology requirements:
+Build the website using:
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Firebase for storing orders/contact requests
+- Firebase Authentication for the admin login if needed
+
+The website must be responsive for desktop, tablet, and mobile.
+
+Visual style:
+Use a soft premium medical-technology style.
+The website should feel:
+- Clean
+- Calm
+- Trustworthy
+- Modern
+- Professional
+- Easy to understand for patients and caregivers
+
+Use Enzora’s visual identity:
+- Deep navy
+- Indigo
+- Violet
+- Soft blue
+- Mint green
+- White
+- Pale medical background
+
+Suggested color palette:
+- Navy: #111F4F
+- Deep blue: #1B2A6B
+- Indigo: #6E75BF
+- Blue: #2748C9
+- Mint green: #19C89A
+- Background: #F5F8FF or #F8FAFF
+- White cards
+
+Design style:
+- Rounded cards
+- Soft shadows
+- Glass-like white panels
+- Smooth gradients
+- Clear readable text
+- Large buttons
+- Simple icons
+- Subtle animations
+- No dark aggressive design
+- No emojis in the UI
+
+Required public website pages/sections:
+
+1. Navbar
+Create a sticky navbar with:
+- Enzora logo/text
+- Links:
+  - Home
+  - About
+  - How It Works
+  - Features
+  - Product
+  - App
+  - Order
+  - FAQ
+- A clear “Order Now” button
+- Mobile hamburger menu
+
+2. Hero Section
+Create a premium hero section.
+
+Left side:
+- Small label: “Smart wound monitoring”
+- Main headline: “Smarter wound monitoring from home.”
+- Supporting text:
+  “Enzora monitors wound bandage color changes using a compact sensor device connected to a simple mobile app, helping patients and caregivers stay more aware during recovery.”
+- Buttons:
+  - “Order Now”
+  - “See How It Works”
+
+Right side:
+Create a product/app mockup using styled components.
+Show:
+- A compact smart device card
+- A phone mockup
+- App status card with:
+  - “Device Connected”
+  - “Wound Status: Normal”
+  - “Last reading updated”
+  - A glowing circular color indicator
+
+Add three metric cards:
+- “Compact Device: 6 × 3 × 2 cm”
+- “Wireless Sync: WiFi”
+- “Continuous Insight: 24/7”
+
+3. Problem Section
+Title:
+“Why home wound monitoring needs to be simpler”
+
+Add three cards:
+- “Late visual changes can be missed”
+- “Patients may feel unsure”
+- “Caregivers need clearer signals”
+
+Use simple patient-friendly wording.
+
+4. About Section
+Title:
+“About Enzora”
+
+Explain that Enzora is a medical technology startup building smart wound-monitoring tools for safer and clearer recovery.
+
+Add mission and vision cards.
+
+Mission:
+“To make wound monitoring easier, clearer, and more accessible for patients and caregivers.”
+
+Vision:
+“To make smart wound-care monitoring a normal part of recovery at home and in healthcare settings.”
+
+5. How It Works Section
+Create a 3-step process:
+
+Step 1:
+“Place the device”
+Description:
+“Attach the Enzora device above the wound bandage after dressing.”
+
+Step 2:
+“Sensor monitors color”
+Description:
+“The color sensor tracks visible bandage color changes that may need attention.”
+
+Step 3:
+“Check the mobile app”
+Description:
+“The app shows simple status updates and guidance so the user knows what to do next.”
+
+Use icons and connecting lines on desktop.
+
+6. Features Section
+Create feature cards for:
+- Color-based monitoring
+- Connected mobile app
+- Real-time updates
+- Caregiver-friendly alerts
+- Simple color guide
+- Compact reusable device
+
+Each card should include an icon, title, and short description.
+
+7. App Preview Section
+Title:
+“Designed to work with the Enzora mobile app”
+
+Create 4 phone mockups using styled divs:
+- Home status screen
+- Healing progress screen
+- Color guide screen
+- Alerts and care tips screen
+
+The mockups should look like a real mobile app using Enzora colors.
+
+8. Color Status Guide Section
+Title:
+“Simple color-based guidance”
+
+Create three large color cards:
+- Yellow: “Normal monitoring”
+- Green: “Watch carefully”
+- Blue: “Contact a doctor”
+
+Add a note:
+“These color indicators are supportive guidance and do not replace professional diagnosis.”
+
+9. Product Section
+Title:
+“Smart Infection-Monitoring Bandage Device”
+
+Include:
+- Device size: 6 × 3 × 2 cm
+- WiFi connection
+- Color sensor monitoring
+- Mobile app synchronization
+- Reusable device design
+- Simple patient-friendly interface
+
+Create a premium product showcase card with labels:
+- Color Sensor
+- WiFi Sync
+- App Alerts
+- Reusable Device
+
+10. Who It Helps Section
+Create cards for:
+- Diabetic patients
+- Post-surgery patients
+- Elderly patients
+- Caregivers
+- Clinics and hospitals
+
+Each card should explain the benefit in one or two lines.
+
+11. Order Section
+Create a real order/contact form.
+
+Title:
+“Order Enzora”
+
+Fields:
+- Full name
+- Email
+- Phone number
+- Country/city
+- Customer type dropdown:
+  - Patient
+  - Caregiver
+  - Clinic
+  - Hospital
+  - Research institution
+  - Other
+- Quantity
+- Message
+
+When submitted:
+- Save the order/contact request to Firebase Firestore.
+- Show a clean success message:
+  “Your Enzora order request was submitted successfully. Our team will contact you soon.”
+- Generate and display a simple order reference number if possible.
+- Do not say preorder.
+
+12. FAQ Section
+Create FAQ cards or accordion for:
+- Is Enzora a replacement for a doctor?
+- Who can use Enzora?
+- How does the device connect to the app?
+- What do the colors mean?
+- Can caregivers use it?
+- How can I order Enzora?
+- Is the device reusable?
+
+13. Footer
+Create a polished footer with:
+- Enzora logo/name
+- Short description
+- Quick links
+- Contact email
+- Social media placeholders
+- Medical disclaimer
+- Copyright
+
+Admin dashboard:
+Create an admin area at /admin.
+
+Admin requirements:
+- Admin login page
+- Protected admin dashboard
+- View submitted orders
+- Search/filter orders
+- Change order status:
+  - New
+  - Contacted
+  - Confirmed
+  - Completed
+  - Rejected
+- Delete orders only after confirmation
+- Display order details clearly
+
+Admin dashboard design:
+Use the same Enzora visual identity but make it dashboard-friendly:
+- White cards
+- Indigo buttons
+- Status badges
+- Clean tables
+- Responsive layout
+
+Firebase:
+Set up Firebase integration in a clean way.
+Use environment variables for Firebase configuration.
+Do not hardcode private keys or secrets.
+Add clear instructions in the README explaining which environment variables are needed.
+
+Suggested file structure:
+- app/page.tsx
+- app/layout.tsx
+- app/admin/page.tsx
+- app/admin/login/page.tsx
+- components/navbar.tsx
+- components/hero-section.tsx
+- components/problem-section.tsx
+- components/about-section.tsx
+- components/how-it-works-section.tsx
+- components/features-section.tsx
+- components/app-preview-section.tsx
+- components/color-guide-section.tsx
+- components/product-section.tsx
+- components/who-it-helps-section.tsx
+- components/order-section.tsx
+- components/faq-section.tsx
+- components/footer.tsx
+- lib/firebase.ts
+- lib/orders.ts
+- lib/auth.ts
+
+Also create:
+- README.md
+- .env.example
+
+README should explain:
+- How to install dependencies
+- How to run locally
+- How to create Firebase project
+- How to add Firebase environment variables
+- How to deploy
+
+Quality requirements:
+- The final website must look polished and startup-ready.
+- It must not look like a basic template.
+- Make the design visually rich but still clean.
+- Make all sections responsive.
+- Make sure all buttons and links work.
+- Make navbar links scroll correctly.
+- Make the order form save data successfully.
+- Make the admin dashboard read the submitted orders.
+- Run the build and fix TypeScript/build errors.
+
+Final result:
+A complete from-scratch Enzora website that looks like a professional medical technology startup website, sells the Enzora smart wound-monitoring system, includes an order form, and includes an admin dashboard for managing submitted orders.
