@@ -1,0 +1,129 @@
+Important correction to the Enzora product model.
+
+The website should not sell one single bandage alone as the main product.
+
+Update the product options to these three products:
+
+1. Enzora Bandage Pack
+- A package containing 5 Enzora bandages
+- Price: $20 total, based on $4 per bandage
+- This is for users who want the bandage only without the smart device
+
+2. Enzora Smart Device
+- The smart sensor device sold separately
+- This is for users who already have Enzora bandages or want the monitoring device only
+- Price: do not show a fixed price yet. Use “Contact us for pricing” or “Pricing available on request”
+
+3. Enzora Complete Package
+- The smart device + Enzora bandage pack together
+- This is the recommended option
+- Price: do not show a fixed price yet unless I provide it later. Use “Contact us for pricing” or “Pricing available on request”
+
+Update all website sections to match this.
+
+Product Options Section:
+Title:
+“Choose your Enzora package”
+
+Create three product cards:
+
+Card 1:
+Title: “Enzora Bandage Pack”
+Price: “$20”
+Subtitle: “5 bandages included”
+Description:
+“A pack of five color-guided wound-care bandages for simple visual monitoring at home.”
+Features:
+- 5 Enzora bandages
+- $4 per bandage
+- Color-based visual guidance
+- No device required
+- Suitable for simple home monitoring
+Button:
+“Buy Bandage Pack”
+
+Card 2:
+Title: “Enzora Smart Device”
+Price: “Contact us”
+Subtitle: “Device sold separately”
+Description:
+“A compact smart sensor device that reads Enzora bandage color changes and connects to the mobile app.”
+Features:
+- Sensor-based color reading
+- WiFi connection
+- Mobile app updates
+- Caregiver-friendly monitoring
+- Works with Enzora bandages
+Button:
+“Order Device”
+
+Card 3:
+Title: “Complete Enzora Package”
+Price: “Contact us”
+Subtitle: “Device + bandage pack”
+Description:
+“The full Enzora monitoring experience, combining the smart sensor device with Enzora bandages.”
+Features:
+- Smart sensor device
+- Enzora bandage pack
+- App status updates
+- Best for continuous home monitoring
+- Recommended option
+Button:
+“Get Complete Package”
+
+Make the Complete Enzora Package visually highlighted as the recommended option.
+
+Update the explanation:
+The Enzora bandage pack can be used alone for simple visual monitoring. The bandage helps users and caregivers notice color changes manually. However, manual checking depends on the user remembering to check and correctly noticing changes.
+
+The Enzora smart device is important because it improves the monitoring experience. It reads the bandage color more consistently, tracks changes, and sends updates to the mobile app. This helps patients and caregivers monitor wound changes more easily and reduces uncertainty during recovery.
+
+Use safe medical wording:
+- Do not say Enzora diagnoses infection.
+- Do not say Enzora treats infection.
+- Do not say Enzora guarantees early detection.
+- Use “supports visual monitoring,” “monitors color changes,” “supports early awareness,” and “helps users know when to seek medical advice.”
+
+Order Section:
+Update the product selection dropdown to:
+
+- Enzora Bandage Pack - 5 bandages - $20
+- Enzora Smart Device - Contact us for pricing
+- Complete Enzora Package - Device + bandage pack
+
+Quantity field:
+The quantity should mean:
+- Number of bandage packs
+- Number of devices
+- Number of complete packages
+
+Show helpful text under the product dropdown:
+“Each bandage pack includes 5 bandages.”
+
+Database:
+Update the orders table to store:
+- id
+- order_reference
+- full_name
+- email
+- phone
+- country_city
+- product_selection
+- quantity
+- customer_type
+- message
+- status
+- created_at
+
+Admin Dashboard:
+Update the admin orders table to clearly show:
+- Product selected
+- Quantity
+- For bandage pack orders, show that each pack includes 5 bandages
+- Status
+- Customer details
+- Message
+
+Do not use the old wording “single bandage for $4” as the main product.
+The correct public product is now a 5-bandage pack for $20.

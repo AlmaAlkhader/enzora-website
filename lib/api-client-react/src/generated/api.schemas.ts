@@ -32,6 +32,15 @@ export const OrderStatus = {
   rejected: 'rejected',
 } as const;
 
+export type ProductSelection = typeof ProductSelection[keyof typeof ProductSelection];
+
+
+export const ProductSelection = {
+  bandage: 'bandage',
+  device: 'device',
+  kit: 'kit',
+} as const;
+
 export interface CreateOrderInput {
   /** @minLength 1 */
   fullName: string;
@@ -44,6 +53,7 @@ export interface CreateOrderInput {
      */
   location: string;
   customerType: CustomerType;
+  productSelection: ProductSelection;
   /** @minimum 1 */
   quantity: number;
   message?: string;
@@ -63,6 +73,7 @@ export interface Order {
   phone: string;
   location: string;
   customerType: CustomerType;
+  productSelection: ProductSelection;
   quantity: number;
   message?: string | null;
   status: OrderStatus;

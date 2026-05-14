@@ -190,6 +190,10 @@ components:
       type: string
       enum: [new, contacted, confirmed, completed, rejected]
 
+    ProductSelection:
+      type: string
+      enum: [bandage, device, kit]
+
     CreateOrderInput:
       type: object
       required:
@@ -198,6 +202,7 @@ components:
         - phone
         - location
         - customerType
+        - productSelection
         - quantity
       properties:
         fullName:
@@ -215,6 +220,8 @@ components:
           description: Country / city
         customerType:
           $ref: "#/components/schemas/CustomerType"
+        productSelection:
+          $ref: "#/components/schemas/ProductSelection"
         quantity:
           type: integer
           minimum: 1
@@ -242,6 +249,7 @@ components:
         - phone
         - location
         - customerType
+        - productSelection
         - quantity
         - status
         - createdAt
@@ -260,6 +268,8 @@ components:
           type: string
         customerType:
           $ref: "#/components/schemas/CustomerType"
+        productSelection:
+          $ref: "#/components/schemas/ProductSelection"
         quantity:
           type: integer
         message:

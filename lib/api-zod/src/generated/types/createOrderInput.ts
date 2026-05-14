@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { CustomerType } from './customerType';
+import type { ProductSelection } from './productSelection';
 
 export interface CreateOrderInput {
   /** @minLength 1 */
@@ -19,6 +20,7 @@ export interface CreateOrderInput {
      */
   location: string;
   customerType: CustomerType;
+  productSelection: ProductSelection;
   /** @minimum 1 */
   quantity: number;
   message?: string;

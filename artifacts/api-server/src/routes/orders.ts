@@ -22,6 +22,7 @@ router.post("/orders", async (req, res) => {
       phone: input.phone,
       location: input.location,
       customerType: input.customerType,
+      productSelection: input.productSelection,
       quantity: input.quantity,
       message: input.message ?? null,
       status: "new",

@@ -19,6 +19,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
+const productLabel = (p?: string | null) => {
+  switch (p) {
+    case "bandage": return "Bandage Pack";
+    case "device": return "Smart Device";
+    case "kit": return "Complete Package";
+    default: return p ?? "—";
+  }
+};
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
@@ -93,7 +102,10 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50/30">
       <header className="bg-white border-b px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-        <h1 className="text-xl font-semibold text-primary">Enzora Admin</h1>
+        <div className="flex items-center gap-3">
+          <img src={`${import.meta.env.BASE_URL}enzora-logo.png`} alt="Enzora" className="h-9 w-auto" />
+          <span className="text-lg font-semibold text-primary hidden sm:inline">Admin</span>
+        </div>
         <Button variant="outline" onClick={handleLogout}>Log out</Button>
       </header>
 
@@ -152,6 +164,7 @@ export default function AdminDashboard() {
                   <TableHead>Customer</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Location</TableHead>
+                  <TableHead>Product</TableHead>
                   <TableHead>Qty</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -159,9 +172,9 @@ export default function AdminDashboard() {
               </TableHeader>
               <TableBody>
                 {isOrdersLoading ? (
-                  <TableRow><TableCell colSpan={8} className="text-center py-8">Loading...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={9} className="text-center py-8">Loading...</TableCell></TableRow>
                 ) : orders.length === 0 ? (
-                  <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No orders found</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No orders found</TableCell></TableRow>
                 ) : (
                   orders.map(o => (
                     <TableRow key={o.id}>
@@ -173,6 +186,12 @@ export default function AdminDashboard() {
                       </TableCell>
                       <TableCell className="capitalize">{o.customerType}</TableCell>
                       <TableCell>{o.location}</TableCell>
+                      <TableCell>
+                        <div className="font-medium text-sm">{productLabel(o.productSelection)}</div>
+                        {o.productSelection === "bandage" && (
+                          <div className="text-xs text-muted-foreground">5 bandages / pack</div>
+                        )}
+                      </TableCell>
                       <TableCell>{o.quantity}</TableCell>
                       <TableCell>
                         <Select value={o.status} onValueChange={(v) => handleStatusChange(o.id, v)}>

@@ -46,8 +46,9 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50/50 p-4">
       <div className="w-full max-w-sm space-y-6 bg-white p-8 rounded-xl shadow-sm border">
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight text-primary">Enzora Admin</h1>
+        <div className="text-center space-y-3">
+          <img src={`${import.meta.env.BASE_URL}enzora-logo.png`} alt="Enzora" className="h-12 w-auto mx-auto" />
+          <h1 className="text-xl font-semibold tracking-tight text-primary">Admin Access</h1>
           <p className="text-muted-foreground text-sm">Enter your password to access the dashboard</p>
         </div>
         <Form {...form}>

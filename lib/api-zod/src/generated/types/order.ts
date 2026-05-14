@@ -7,6 +7,7 @@
  */
 import type { CustomerType } from './customerType';
 import type { OrderStatus } from './orderStatus';
+import type { ProductSelection } from './productSelection';
 
 export interface Order {
   id: number;
@@ -16,6 +17,7 @@ export interface Order {
   phone: string;
   location: string;
   customerType: CustomerType;
+  productSelection: ProductSelection;
   quantity: number;
   message?: string | null;
   status: OrderStatus;

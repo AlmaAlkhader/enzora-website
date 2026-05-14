@@ -22,6 +22,7 @@ export function serializeOrder(row: OrderRow) {
       | "hospital"
       | "research"
       | "other",
+    productSelection: row.productSelection as "bandage" | "device" | "kit",
     quantity: row.quantity,
     message: row.message ?? null,
     status: row.status as

@@ -18,4 +18,5 @@ export * from './orderConfirmation';
 export * from './ordersSummary';
 export * from './ordersSummaryByStatus';
 export * from './orderStatus';
+export * from './productSelection';
 export * from './updateOrderStatusInput';

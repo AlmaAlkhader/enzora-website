@@ -1,0 +1,267 @@
+Important update for the Enzora website requirements.
+
+Enzora does not only sell the smart device. Enzora sells both:
+
+1. The Enzora smart wound-monitoring bandage
+2. The Enzora smart sensor device
+
+There must also be an option to buy the bandage alone.
+
+Product model:
+- Enzora Bandage Alone: $4
+- Enzora Smart Device: sold separately
+- Enzora Complete Kit: bandage + smart device
+
+Please update the website content, product section, order section, and pricing/product cards to clearly explain the difference.
+
+Bandage-alone explanation:
+The Enzora bandage is a smart wound-care bandage that helps users visually monitor wound changes through color indicators. It can be used alone as a simple, affordable wound-monitoring support tool. The bandage helps the patient or caregiver notice visible color changes, but the user still needs to manually check the bandage.
+
+Important wording:
+Do not claim the bandage diagnoses infection.
+Use safe wording like:
+- “supports visual wound monitoring”
+- “helps users notice color changes”
+- “provides a simple color-based indication”
+- “helps patients and caregivers know when to pay closer attention or seek medical advice”
+
+Device explanation:
+The Enzora device is important because it makes the monitoring process smarter and easier. Instead of relying only on the user visually checking the bandage, the device reads the bandage color using a sensor, tracks changes, and sends updates to the mobile app.
+
+Explain that the device helps by:
+- Reading the bandage color more consistently than manual checking
+- Sending updates to the mobile app
+- Helping patients and caregivers monitor changes more easily
+- Supporting early awareness
+- Making home wound monitoring clearer and less stressful
+- Helping caregivers check status without always being physically next to the patient
+
+Important wording:
+Do not claim the device diagnoses, treats, cures, or guarantees infection detection.
+Use safe wording like:
+- “supports early awareness”
+- “monitors bandage color changes”
+- “helps users know when to seek medical advice”
+- “does not replace professional medical diagnosis”
+
+Update the website structure:
+
+1. Hero Section
+Update the hero to show that Enzora is a smart bandage and device system.
+
+Headline suggestion:
+“Smarter wound monitoring with a color-guided bandage and connected device.”
+
+Supporting text:
+“Enzora combines a color-guided wound bandage with an optional smart sensor device. The bandage supports simple visual monitoring, while the device reads color changes and sends updates to the mobile app for clearer home wound-care awareness.”
+
+Hero buttons:
+- “Buy Bandage”
+- “Order Device”
+- “See How It Works”
+
+2. Product Options Section
+Add a new section titled:
+“Choose the Enzora option that fits your needs”
+
+Create three pricing/product cards:
+
+Card 1:
+Title: “Enzora Bandage”
+Price: “$4”
+Description:
+“A color-guided wound-care bandage for simple visual monitoring at home.”
+Features:
+- Affordable single bandage
+- Color-based visual guidance
+- Easy for patients and caregivers
+- No device required
+Button:
+“Buy Bandage”
+
+Card 2:
+Title: “Enzora Smart Device”
+Price: “Sold separately”
+Description:
+“A compact sensor device that reads bandage color changes and connects to the Enzora mobile app.”
+Features:
+- Sensor-based color reading
+- WiFi connection
+- Mobile app updates
+- Caregiver-friendly monitoring
+Button:
+“Order Device”
+
+Card 3:
+Title: “Complete Enzora Kit”
+Price: “Bandage + Device”
+Description:
+“The full Enzora experience: color-guided bandage plus smart device monitoring.”
+Features:
+- Bandage included
+- Smart sensor device
+- App status updates
+- Best for continuous home monitoring
+Button:
+“Get Complete Kit”
+
+Make the Complete Kit card visually highlighted as the recommended option.
+
+3. How It Works Section
+Update the process into two paths:
+
+Path A: Bandage only
+Step 1: Apply the Enzora bandage
+Step 2: Watch the color indicator
+Step 3: Seek medical advice if concerning changes appear
+
+Path B: Bandage + device
+Step 1: Apply the Enzora bandage
+Step 2: Place the smart device above the bandage
+Step 3: Device reads color changes
+Step 4: Mobile app shows updates and alerts
+
+Show this visually using two side-by-side workflow cards.
+
+4. Why the Device Helps Section
+Add a section titled:
+“Why add the Enzora device?”
+
+Use cards explaining:
+- More consistent readings than manual checking
+- Easier monitoring for caregivers
+- App-based status updates
+- Better tracking over time
+- Less uncertainty during recovery
+
+5. App Preview Section
+The app screenshots will be provided by me later.
+Do not generate fake screenshot images if I upload real screenshots.
+Create a clean app preview section that can display the screenshots I provide.
+Use image placeholders for now with clear labels:
+- Home status screen
+- Color guide screen
+- Healing progress screen
+- Alerts screen
+
+When I upload screenshots, use those exact images in this section.
+
+6. Logo Integration
+Integrate the Enzora logo more strongly across the website.
+
+Use the logo in:
+- Navbar
+- Hero section
+- Footer
+- Product cards
+- Loading/intro animation if possible
+- Subtle background watermark pattern
+- Favicon if possible
+- Admin dashboard header
+
+If a logo file is uploaded, use it instead of plain text.
+Do not distort the logo.
+Keep enough white space around it.
+Use the logo colors as the website’s visual identity.
+
+7. Animations
+Add subtle premium animations, not childish or distracting.
+
+Suggested animations:
+- Soft logo fade-in on page load
+- Floating device/app mockup in the hero section
+- Glowing color circle animation for bandage/device status
+- Smooth scroll reveal for sections
+- Product cards lift slightly on hover
+- Buttons have soft hover movement
+- App screenshot cards slide/fade in
+- Background gradient blobs move slowly
+
+Use CSS animations or Framer Motion if appropriate.
+Keep animations smooth, professional, and lightweight.
+
+8. Order Section
+Update the order form so the user can choose what they want to buy.
+
+Add field:
+Product selection dropdown:
+- Enzora Bandage - $4
+- Enzora Smart Device
+- Complete Enzora Kit
+
+Add quantity field.
+If the user selects bandage, show the $4 price clearly.
+If the user selects device or complete kit, show “Our team will contact you with pricing and availability” unless a price is added later.
+
+Order form fields:
+- Full name
+- Email
+- Phone number
+- Country/city
+- Product selection
+- Quantity
+- Customer type:
+  - Patient
+  - Caregiver
+  - Clinic
+  - Hospital
+  - Research institution
+  - Other
+- Message
+
+When submitted:
+Save the order to the Replit PostgreSQL database.
+Do not use Firebase.
+Generate an order reference number.
+Show a success message.
+
+9. Admin Dashboard
+Update the admin dashboard orders table to display:
+- Order reference
+- Customer name
+- Email
+- Phone
+- Product selected
+- Quantity
+- Customer type
+- Status
+- Created date
+- Message/details
+
+Allow status updates:
+- New
+- Contacted
+- Confirmed
+- Completed
+- Rejected
+
+10. Database
+Use Replit PostgreSQL, not Firebase.
+
+Orders table should include:
+- id
+- order_reference
+- full_name
+- email
+- phone
+- country_city
+- product_selection
+- quantity
+- customer_type
+- message
+- status
+- created_at
+
+11. Design Reminder
+Keep the style soft premium medical-tech:
+- White and pale blue background
+- Indigo/violet Enzora identity
+- Mint green accent
+- Rounded cards
+- Soft shadows
+- Clean medical layout
+- Professional startup feel
+- No emojis in the UI
+
+Final goal:
+The website should clearly show that Enzora sells both the $4 smart bandage and the optional smart device. The bandage alone provides simple color-based visual monitoring, while the device makes the experience smarter by reading the bandage color and sending updates to the app.
