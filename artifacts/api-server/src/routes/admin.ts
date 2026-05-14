@@ -50,8 +50,8 @@ router.get("/admin/orders", requireAdmin, async (req, res) => {
       or(
         ilike(ordersTable.fullName, like),
         ilike(ordersTable.email, like),
-        ilike(ordersTable.reference, like),
-        ilike(ordersTable.location, like),
+        ilike(ordersTable.orderReference, like),
+        ilike(ordersTable.countryCity, like),
       )!,
     );
   }

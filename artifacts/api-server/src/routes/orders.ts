@@ -12,15 +12,15 @@ router.post("/orders", async (req, res) => {
     return;
   }
   const input = parsed.data;
-  const reference = generateReference();
+  const orderReference = generateReference();
   const [row] = await db
     .insert(ordersTable)
     .values({
-      reference,
+      orderReference,
       fullName: input.fullName,
       email: input.email,
       phone: input.phone,
-      location: input.location,
+      countryCity: input.countryCity,
       customerType: input.customerType,
       productSelection: input.productSelection,
       quantity: input.quantity,
@@ -35,7 +35,7 @@ router.post("/orders", async (req, res) => {
   const serialized = serializeOrder(row);
   res.status(201).json({
     id: serialized.id,
-    reference: serialized.reference,
+    orderReference: serialized.orderReference,
     status: serialized.status,
   });
 });

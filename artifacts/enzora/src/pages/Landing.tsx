@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateOrderBody } from "@workspace/api-zod";
-import { useCreateOrder } from "@workspace/api-client-react";
+import { useCreateOrder, type CreateOrderInput, ProductSelection } from "@workspace/api-client-react";
 import { motion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,25 +41,36 @@ const Section = ({ id, className = "", children }: { id?: string; className?: st
   </motion.section>
 );
 
-const productOptions = [
+type ProductOption = {
+  id: ProductSelection;
+  title: string;
+  price: string;
+  subtitle: string;
+  description: string;
+  features: string[];
+  cta: string;
+  highlight: boolean;
+};
+
+const productOptions: ProductOption[] = [
   {
-    id: "bandage",
-    title: "Enzora Bandage",
-    price: "$4",
-    subtitle: "Single bandage",
+    id: "bandage_pack",
+    title: "Enzora Bandage Pack",
+    price: "$20",
+    subtitle: "5 bandages per pack",
     description:
-      "A color-guided wound-care bandage for simple visual monitoring at home.",
+      "A pack of five color-guided wound-care bandages for simple visual monitoring at home.",
     features: [
-      "Affordable single bandage",
+      "5 bandages per pack ($4 per bandage)",
       "Color-based visual guidance",
       "Easy for patients and caregivers",
       "No device required",
     ],
-    cta: "Buy Bandage",
+    cta: "Buy Bandage Pack",
     highlight: false,
   },
   {
-    id: "device",
+    id: "smart_device",
     title: "Enzora Smart Device",
     price: "Contact us",
     subtitle: "Device sold separately",
@@ -76,15 +87,15 @@ const productOptions = [
     highlight: false,
   },
   {
-    id: "kit",
+    id: "complete_package",
     title: "Complete Enzora Package",
     price: "Contact us",
-    subtitle: "Device + bandage",
+    subtitle: "Device + bandage pack",
     description:
-      "The full Enzora monitoring experience, combining the smart sensor device with Enzora bandages.",
+      "The full Enzora monitoring experience, combining the smart sensor device with a pack of Enzora bandages.",
     features: [
       "Smart sensor device",
-      "Enzora bandage included",
+      "Bandage pack included (5 bandages)",
       "App status updates",
       "Best for continuous home monitoring",
       "Recommended option",
@@ -108,15 +119,15 @@ export default function Landing() {
 
   const orderMutation = useCreateOrder();
 
-  const form = useForm({
+  const form = useForm<CreateOrderInput>({
     resolver: zodResolver(CreateOrderBody),
     defaultValues: {
       fullName: "",
       email: "",
       phone: "",
-      location: "",
-      customerType: "patient" as any,
-      productSelection: "kit" as any,
+      countryCity: "",
+      customerType: "patient",
+      productSelection: ProductSelection.complete_package,
       quantity: 1,
       message: "",
     },
@@ -124,10 +135,10 @@ export default function Landing() {
 
   const selectedProduct = form.watch("productSelection");
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: CreateOrderInput) => {
     orderMutation.mutate({ data }, {
       onSuccess: (res) => {
-        setOrderSuccessRef(res.reference);
+        setOrderSuccessRef(res.orderReference);
         form.reset();
       },
     });
@@ -138,14 +149,28 @@ export default function Landing() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const selectProduct = (id: string) => {
-    form.setValue("productSelection", id as any);
+  const selectProduct = (id: ProductSelection) => {
+    form.setValue("productSelection", id);
     scrollTo("order");
   };
 
-  const productPriceHint = selectedProduct === "bandage"
-    ? "$4 per bandage. Final total will be confirmed by our team."
-    : "Our team will contact you with pricing and availability.";
+  const productPriceHint = "Each bandage pack includes 5 bandages.";
+
+  const quantityCopy: Record<ProductSelection, { label: string; hint: string }> = {
+    bandage_pack: {
+      label: "Number of bandage packs",
+      hint: "Each pack contains 5 bandages ($20 per pack).",
+    },
+    smart_device: {
+      label: "Number of devices",
+      hint: "How many smart devices would you like?",
+    },
+    complete_package: {
+      label: "Number of complete packages",
+      hint: "Each complete package includes a device and a bandage pack (5 bandages).",
+    },
+  };
+  const { label: quantityLabel, hint: quantityHint } = quantityCopy[selectedProduct];
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 overflow-x-hidden">
@@ -226,21 +251,21 @@ export default function Landing() {
             and connected device.
           </motion.h1>
           <motion.p variants={fadeUp} className="text-lg text-muted-foreground leading-relaxed">
-            Enzora combines a color-guided wound bandage with an optional smart sensor device. The bandage supports simple visual monitoring, while the device reads color changes and sends updates to the mobile app for clearer home wound-care awareness.
+            Enzora combines a pack of color-guided wound bandages with an optional smart sensor device. The bandage pack can be used on its own for simple visual monitoring, while the device makes monitoring more consistent through sensor reading and app updates.
           </motion.p>
           <motion.div variants={fadeUp} className="flex flex-wrap gap-3">
             <Button
               size="lg"
               className="rounded-full px-7 text-base h-12 shadow-md shadow-primary/25 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-primary/30 transition-all"
-              onClick={() => selectProduct("bandage")}
+              onClick={() => selectProduct("bandage_pack")}
             >
-              Buy Bandage
+              Buy Bandage Pack
             </Button>
             <Button
               size="lg"
               variant="outline"
               className="rounded-full px-7 text-base h-12 border-2 hover:translate-y-[-2px] transition-all"
-              onClick={() => selectProduct("device")}
+              onClick={() => selectProduct("smart_device")}
             >
               Order Device
             </Button>
@@ -359,7 +384,7 @@ export default function Landing() {
           <motion.div variants={fadeUp} className="text-center max-w-2xl mx-auto mb-14">
             <h2 className="text-4xl font-bold text-foreground tracking-tight">Choose your Enzora package</h2>
             <p className="text-muted-foreground mt-4 text-lg">
-              Bandages alone for simple visual monitoring, or add the smart device for app-connected awareness.
+              The bandage pack can be used on its own for simple visual monitoring. Add the smart device to make monitoring more consistent with sensor readings and app updates.
             </p>
           </motion.div>
 
@@ -729,7 +754,7 @@ export default function Landing() {
                         <FormMessage />
                       </FormItem>
                     )} />
-                    <FormField control={form.control} name="location" render={({ field }) => (
+                    <FormField control={form.control} name="countryCity" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Country / City</FormLabel>
                         <FormControl><Input placeholder="United States, NY" className="h-12" {...field} /></FormControl>
@@ -749,9 +774,9 @@ export default function Landing() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="bandage">Enzora Bandage — $4</SelectItem>
-                            <SelectItem value="device">Enzora Smart Device — Contact us for pricing</SelectItem>
-                            <SelectItem value="kit">Complete Enzora Kit — Device + bandage</SelectItem>
+                            <SelectItem value="bandage_pack">Enzora Bandage Pack - 5 bandages - $20</SelectItem>
+                            <SelectItem value="smart_device">Enzora Smart Device - Contact us for pricing</SelectItem>
+                            <SelectItem value="complete_package">Complete Enzora Package - Device + bandage pack</SelectItem>
                           </SelectContent>
                         </Select>
                         <p className="text-xs text-muted-foreground mt-1">{productPriceHint}</p>
@@ -760,12 +785,12 @@ export default function Landing() {
                     )} />
                     <FormField control={form.control} name="quantity" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Quantity</FormLabel>
+                        <FormLabel>{quantityLabel}</FormLabel>
                         <FormControl>
                           <Input type="number" min={1} className="h-12" {...field}
                             onChange={(e) => field.onChange(parseInt(e.target.value, 10))} />
                         </FormControl>
-                        <p className="text-xs text-muted-foreground mt-1">Bandages are sold individually at $4 each.</p>
+                        <p className="text-xs text-muted-foreground mt-1">{quantityHint}</p>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -820,7 +845,7 @@ export default function Landing() {
           <Accordion type="single" collapsible className="w-full space-y-3">
             {[
               { q: "Is Enzora a replacement for a doctor?", a: "No. Enzora is a monitoring support tool designed to help you stay aware of visual changes. It does not replace professional medical advice, diagnosis, or treatment." },
-              { q: "Can I buy only the bandage?", a: "Yes. The Enzora bandage is $4 each and can be used on its own for simple visual color-based monitoring." },
+              { q: "Can I buy only the bandage pack?", a: "Yes. The Enzora bandage pack contains 5 bandages for $20 and can be used on its own for simple visual color-based monitoring." },
               { q: "What does the smart device add?", a: "The device reads bandage color more consistently than manual checking, tracks changes, and sends updates to the Enzora mobile app." },
               { q: "How does the device connect to the app?", a: "The device uses a standard WiFi connection to securely sync data to your Enzora mobile app." },
               { q: "What do the colors mean?", a: "Yellow indicates normal monitoring. Green suggests you should watch the area carefully. Blue is a signal to contact a doctor. These are supportive guides only." },

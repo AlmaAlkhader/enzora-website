@@ -22,9 +22,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 const productLabel = (p?: string | null) => {
   switch (p) {
-    case "bandage": return "Bandage Pack";
-    case "device": return "Smart Device";
-    case "kit": return "Complete Package";
+    case "bandage_pack": return "Enzora Bandage Pack";
+    case "smart_device": return "Enzora Smart Device";
+    case "complete_package": return "Complete Enzora Package";
     default: return p ?? "—";
   }
 };
@@ -169,36 +169,45 @@ export default function AdminDashboard() {
                   <TableHead>Date</TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Location</TableHead>
+                  <TableHead>Country / City</TableHead>
                   <TableHead>Product</TableHead>
                   <TableHead>Qty</TableHead>
+                  <TableHead>Message</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isOrdersLoading ? (
-                  <TableRow><TableCell colSpan={9} className="text-center py-8">Loading...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={10} className="text-center py-8">Loading...</TableCell></TableRow>
                 ) : orders.length === 0 ? (
-                  <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No orders found</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">No orders found</TableCell></TableRow>
                 ) : (
                   orders.map(o => (
                     <TableRow key={o.id}>
-                      <TableCell className="font-mono text-xs">{o.reference}</TableCell>
+                      <TableCell className="font-mono text-xs">{o.orderReference}</TableCell>
                       <TableCell className="whitespace-nowrap">{new Date(o.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <div className="font-medium">{o.fullName}</div>
                         <div className="text-xs text-muted-foreground">{o.email}</div>
+                        <div className="text-xs text-muted-foreground">{o.phone}</div>
                       </TableCell>
                       <TableCell className="capitalize">{o.customerType}</TableCell>
-                      <TableCell>{o.location}</TableCell>
+                      <TableCell>{o.countryCity}</TableCell>
                       <TableCell>
                         <div className="font-medium text-sm">{productLabel(o.productSelection)}</div>
-                        {o.productSelection === "bandage" && (
-                          <div className="text-xs text-muted-foreground">5 bandages / pack</div>
+                        {o.productSelection === "bandage_pack" && (
+                          <div className="text-xs text-muted-foreground">Each pack includes 5 bandages</div>
                         )}
                       </TableCell>
                       <TableCell>{o.quantity}</TableCell>
+                      <TableCell className="max-w-[240px]">
+                        {o.message ? (
+                          <div className="text-xs text-muted-foreground whitespace-pre-wrap break-words">{o.message}</div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Select value={o.status} onValueChange={(v) => handleStatusChange(o.id, v)}>
                           <SelectTrigger className="h-8 w-[120px] text-xs">
@@ -222,7 +231,7 @@ export default function AdminDashboard() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Delete order?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete order {o.reference}? This cannot be undone.
+                                Are you sure you want to delete order {o.orderReference}? This cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

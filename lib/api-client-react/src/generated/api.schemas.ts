@@ -36,9 +36,9 @@ export type ProductSelection = typeof ProductSelection[keyof typeof ProductSelec
 
 
 export const ProductSelection = {
-  bandage: 'bandage',
-  device: 'device',
-  kit: 'kit',
+  bandage_pack: 'bandage_pack',
+  smart_device: 'smart_device',
+  complete_package: 'complete_package',
 } as const;
 
 export interface CreateOrderInput {
@@ -51,7 +51,7 @@ export interface CreateOrderInput {
      * Country / city
      * @minLength 1
      */
-  location: string;
+  countryCity: string;
   customerType: CustomerType;
   productSelection: ProductSelection;
   /** @minimum 1 */
@@ -61,17 +61,17 @@ export interface CreateOrderInput {
 
 export interface OrderConfirmation {
   id: number;
-  reference: string;
+  orderReference: string;
   status: OrderStatus;
 }
 
 export interface Order {
   id: number;
-  reference: string;
+  orderReference: string;
   fullName: string;
   email: string;
   phone: string;
-  location: string;
+  countryCity: string;
   customerType: CustomerType;
   productSelection: ProductSelection;
   quantity: number;

@@ -11,11 +11,11 @@ import type { ProductSelection } from './productSelection';
 
 export interface Order {
   id: number;
-  reference: string;
+  orderReference: string;
   fullName: string;
   email: string;
   phone: string;
-  location: string;
+  countryCity: string;
   customerType: CustomerType;
   productSelection: ProductSelection;
   quantity: number;

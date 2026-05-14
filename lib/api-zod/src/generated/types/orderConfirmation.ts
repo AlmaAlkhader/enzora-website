@@ -9,6 +9,6 @@ import type { OrderStatus } from './orderStatus';
 
 export interface OrderConfirmation {
   id: number;
-  reference: string;
+  orderReference: string;
   status: OrderStatus;
 }

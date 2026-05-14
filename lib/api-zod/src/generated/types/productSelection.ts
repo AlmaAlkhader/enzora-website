@@ -10,7 +10,7 @@ export type ProductSelection = typeof ProductSelection[keyof typeof ProductSelec
 
 
 export const ProductSelection = {
-  bandage: 'bandage',
-  device: 'device',
-  kit: 'kit',
+  bandage_pack: 'bandage_pack',
+  smart_device: 'smart_device',
+  complete_package: 'complete_package',
 } as const;

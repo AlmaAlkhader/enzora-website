@@ -18,7 +18,7 @@ export interface CreateOrderInput {
      * Country / city
      * @minLength 1
      */
-  location: string;
+  countryCity: string;
   customerType: CustomerType;
   productSelection: ProductSelection;
   /** @minimum 1 */

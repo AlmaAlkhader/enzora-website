@@ -192,7 +192,7 @@ components:
 
     ProductSelection:
       type: string
-      enum: [bandage, device, kit]
+      enum: [bandage_pack, smart_device, complete_package]
 
     CreateOrderInput:
       type: object
@@ -200,7 +200,7 @@ components:
         - fullName
         - email
         - phone
-        - location
+        - countryCity
         - customerType
         - productSelection
         - quantity
@@ -214,7 +214,7 @@ components:
         phone:
           type: string
           minLength: 3
-        location:
+        countryCity:
           type: string
           minLength: 1
           description: Country / city
@@ -230,11 +230,11 @@ components:
 
     OrderConfirmation:
       type: object
-      required: [id, reference, status]
+      required: [id, orderReference, status]
       properties:
         id:
           type: integer
-        reference:
+        orderReference:
           type: string
         status:
           $ref: "#/components/schemas/OrderStatus"
@@ -243,11 +243,11 @@ components:
       type: object
       required:
         - id
-        - reference
+        - orderReference
         - fullName
         - email
         - phone
-        - location
+        - countryCity
         - customerType
         - productSelection
         - quantity
@@ -256,7 +256,7 @@ components:
       properties:
         id:
           type: integer
-        reference:
+        orderReference:
           type: string
         fullName:
           type: string
@@ -264,7 +264,7 @@ components:
           type: string
         phone:
           type: string
-        location:
+        countryCity:
           type: string
         customerType:
           $ref: "#/components/schemas/CustomerType"

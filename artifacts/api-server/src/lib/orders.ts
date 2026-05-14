@@ -10,11 +10,11 @@ export function generateReference(): string {
 export function serializeOrder(row: OrderRow) {
   return {
     id: row.id,
-    reference: row.reference,
+    orderReference: row.orderReference,
     fullName: row.fullName,
     email: row.email,
     phone: row.phone,
-    location: row.location,
+    countryCity: row.countryCity,
     customerType: row.customerType as
       | "patient"
       | "caregiver"
@@ -22,7 +22,10 @@ export function serializeOrder(row: OrderRow) {
       | "hospital"
       | "research"
       | "other",
-    productSelection: row.productSelection as "bandage" | "device" | "kit",
+    productSelection: row.productSelection as
+      | "bandage_pack"
+      | "smart_device"
+      | "complete_package",
     quantity: row.quantity,
     message: row.message ?? null,
     status: row.status as
