@@ -1,0 +1,132 @@
+Update the Enzora order/buying form so the example/default text feels Palestinian and locally relevant.
+
+Important:
+Do not pre-fill private personal data as real values. Use Palestinian-related placeholder examples instead, unless the field is a dropdown where a default makes sense.
+
+Order form updates:
+
+1. Full name field
+Use placeholder:
+“Mohammad Ahmad” or “Sara Khaled”
+
+2. Email field
+Use placeholder:
+“name@example.com”
+Do not use a real Enzora email as the placeholder.
+
+3. Phone number field
+Use Palestinian phone placeholder:
+“+970 59 000 0000”
+Also allow formats like:
+“0590000000”
+“+970 56 000 0000”
+“+970 2 000 0000”
+
+4. Country/City field
+Make this more Palestinian-related.
+
+Option A, preferred:
+Replace the single text box with two fields:
+
+Country dropdown:
+Default selected: “Palestine”
+
+City dropdown:
+Options:
+- Ramallah
+- Al-Bireh
+- Jerusalem
+- Nablus
+- Hebron
+- Bethlehem
+- Jenin
+- Tulkarm
+- Qalqilya
+- Salfit
+- Jericho
+- Tubas
+- Gaza
+- Khan Younis
+- Rafah
+- Other
+
+If “Other” is selected, show a text box:
+“Enter your city”
+
+Option B, if keeping one text field:
+Use placeholder:
+“Ramallah, Palestine”
+
+5. Customer type dropdown
+Keep the existing options but make the default:
+“Patient”
+
+Options:
+- Patient
+- Caregiver
+- Clinic
+- Hospital
+- Medical distributor
+- Research institution
+- Other
+
+6. Product selection dropdown
+Keep these product options:
+- Enzora Bandage Pack - 5 bandages - $20
+- Enzora Smart Device - Contact us for pricing
+- Complete Enzora Package - Device + bandage pack
+
+Default selected product:
+“Enzora Bandage Pack - 5 bandages - $20”
+
+7. Quantity field
+Default value:
+1
+
+Helper text:
+“For bandage packs, quantity means number of packs. Each pack includes 5 bandages.”
+
+8. Message field
+Use Palestinian/local example placeholder:
+“I am interested in using Enzora for home wound monitoring in Ramallah.”
+or:
+“I represent a clinic in Palestine and would like to know more about Enzora.”
+
+9. Currency/context
+Keep the public price as USD for now.
+For the bandage pack, show:
+“$20 per pack”
+“Each pack includes 5 bandages”
+“Equivalent local payment options may be discussed after submitting your request.”
+
+10. Admin dashboard
+In the admin orders table, show:
+- Country
+- City
+- Phone
+- Product selected
+- Quantity
+- Customer type
+
+If country/city are separated in the database, update the orders table fields:
+- country
+- city
+instead of only country_city.
+
+11. Database migration
+If the current database already has country_city, do not break existing orders.
+Either:
+- keep country_city and store “City, Palestine”
+or
+- add country and city fields while still supporting old country_city data.
+
+12. Design
+Make the form feel local but still professional:
+- Use clear labels
+- Use helpful placeholder text
+- Keep the form clean and medical-tech style
+- Do not make the website Arabic unless I ask later
+- Keep the main website in English
+
+Final result:
+The buying/order form should feel suitable for Palestinian users, clinics, and caregivers, with Palestine as the default country, Palestinian city options, Palestinian phone examples, and locally relevant message placeholders.

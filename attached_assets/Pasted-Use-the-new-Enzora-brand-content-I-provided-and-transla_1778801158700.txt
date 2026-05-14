@@ -1,0 +1,160 @@
+Use the new Enzora brand content I provided and translate/adapt it into clear English website copy.
+
+Important:
+The website language should be English.
+Do not copy the Arabic posts as images with Arabic text inside the main English website.
+Use the Arabic posts as brand/style inspiration and translate their meaning into polished English copy.
+
+Visual inspiration from the posts:
+- Strong Enzora logo presence at the top
+- White background
+- Soft purple/blue gradient panels
+- Thin flowing wave lines in the background
+- Rounded rectangular content cards
+- Calm medical-tech identity
+- Friendly smart bandage mascot if available
+- Navy headings and soft violet/blue accents
+
+Update the website copy using the following approved English content.
+
+About Enzora section:
+Title:
+“Who We Are”
+
+Content:
+“Enzora is a student-founded medical technology startup from Birzeit University. We are developing a smart wound patch system that supports wound monitoring and helps users notice possible changes earlier through modern, accessible, and innovative technology.”
+
+Add a short second paragraph:
+“Our goal is to make wound-care follow-up clearer for patients, caregivers, and healthcare providers, especially in situations where regular monitoring can be difficult.”
+
+Mission section:
+Title:
+“Our Mission”
+
+Content:
+“To develop smart medical solutions that improve patient care and make wound monitoring safer, clearer, and more effective by combining healthcare, engineering, and innovation.”
+
+Vision section:
+Title:
+“Our Vision”
+
+Content:
+“To be part of the future of smart healthcare by creating innovative solutions that make patients’ lives easier, support continuous follow-up, and create a positive impact in the medical sector.”
+
+Product positioning section:
+Add a section titled:
+“More than a traditional bandage”
+
+Content:
+“Traditional dressings cover a wound. Enzora is designed to support a more active wound-care experience by combining a color-guided bandage with an optional smart monitoring device.”
+
+Continue with:
+“The Enzora bandage helps patients and caregivers visually notice color changes. When paired with the Enzora device, the system can read these changes more consistently and send updates to the mobile app.”
+
+Important safe wording:
+Do not say Enzora diagnoses infection.
+Do not say Enzora treats wounds.
+Do not say it guarantees early detection.
+Use:
+- “supports wound monitoring”
+- “helps users notice possible changes”
+- “supports early awareness”
+- “helps users know when to seek medical advice”
+
+Diabetic wound care section:
+Add a section titled:
+“Built for patients who need closer wound follow-up”
+
+Content:
+“Diabetic wounds can change quickly and require careful monitoring. Enzora is designed to support patients, caregivers, and clinics by making wound follow-up easier, clearer, and less dependent on guesswork.”
+
+Add:
+“For diabetic clinics and healthcare providers, Enzora can support a shift from occasional visual checking toward more consistent monitoring and timely awareness.”
+
+Distributor / healthcare partner section:
+Add a B2B section titled:
+“For clinics, hospitals, and medical distributors”
+
+Content:
+“The medical consumables market is moving toward smarter, more connected solutions. Enzora combines accessible wound-care materials with smart monitoring technology, creating a product line that can support patients, caregivers, and healthcare providers.”
+
+Add call-to-action:
+“If you are a clinic, hospital, or medical distributor interested in Enzora, contact us to discuss partnership and distribution opportunities.”
+
+Emergency/resource-limited care positioning:
+Use this idea carefully:
+“Enzora is especially valuable in situations where frequent clinical follow-up is difficult, including home recovery, elderly care, diabetic wound monitoring, and resource-limited settings.”
+
+Do not overpromise lifesaving outcomes.
+Avoid saying “ultimately save lives” as a direct guarantee.
+Instead say:
+“By supporting earlier awareness and clearer follow-up, Enzora aims to reduce uncertainty and support better wound-care decisions.”
+
+Update product options:
+The products are:
+
+1. Enzora Bandage Pack
+- 5 bandages
+- $20 total
+- $4 per bandage
+- For simple visual color-guided monitoring
+
+2. Enzora Smart Device
+- Sold separately
+- Contact us for pricing
+- Reads Enzora bandage color changes
+- Connects to the mobile app
+
+3. Complete Enzora Package
+- Device + bandage pack
+- Contact us for pricing
+- Recommended option
+- Full Enzora monitoring experience
+
+Update the order form product dropdown:
+- Enzora Bandage Pack - 5 bandages - $20
+- Enzora Smart Device - Contact us for pricing
+- Complete Enzora Package - Device + bandage pack
+
+Brand design update:
+Integrate the Enzora logo more strongly:
+- Navbar
+- Hero section
+- About section
+- Product cards
+- Footer
+- Admin dashboard
+- Optional soft watermark in background
+
+Add a subtle wave-line background inspired by the social posts:
+- Thin flowing blue/purple lines
+- Very light opacity
+- Use as decorative background only
+- Do not make the page crowded
+
+Animations:
+Add professional lightweight animations:
+- Logo fade-in
+- Hero product mockup floating slowly
+- Gradient wave movement
+- Cards fade in on scroll
+- Product cards lift on hover
+- Glowing color indicator pulse
+- App screenshot cards slide in softly
+
+App screenshots:
+I will upload real screenshots from the mobile app later.
+For now, create the app preview section with image placeholders.
+When I upload the screenshots, use those exact screenshots instead of generated mockups.
+
+Privacy:
+Keep the “Privacy-first by design” section and GDPR-aware wording.
+Use this privacy message:
+“Because wound-care monitoring may involve sensitive information, Enzora is designed with privacy, transparency, consent, and responsible data handling in mind.”
+
+Medical disclaimer:
+Add this near the footer and FAQ:
+“Enzora is a monitoring support tool and does not replace professional medical advice, diagnosis, or treatment.”
+
+Final goal:
+Update the website so it feels like a real Enzora startup website with strong brand identity, English professional copy, product-selling sections, partner/distributor appeal, diabetic wound-care relevance, privacy-first messaging, subtle animations, and clear product ordering.
