@@ -15,7 +15,7 @@ import { SocialIcons } from "@/components/SocialIcons";
 import { WaveBackground } from "@/components/WaveBackground";
 import {
   Menu, X, CheckCircle2, Heart, Shield, ShieldCheck,
-  Sparkles, ArrowRight, Package, Smartphone, Building2, Lock, Mail
+  Sparkles, ArrowRight, Package, Building2, Lock, Mail
 } from "lucide-react";
 
 const fadeUp: Variants = {
@@ -261,7 +261,7 @@ export default function Landing() {
           aria-hidden
           className="pointer-events-none absolute right-[-80px] top-1/2 -translate-y-1/2 w-[520px] opacity-[0.04] select-none"
         />
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative">
+        <div className="max-w-7xl mx-auto relative">
           <motion.div className="space-y-8 max-w-2xl" variants={fadeUp}>
             <motion.img
               src={LOGO_SRC}
@@ -312,87 +312,6 @@ export default function Landing() {
                 Learn More <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             </motion.div>
-          </motion.div>
-
-          {/* Right hero composition */}
-          <motion.div variants={fadeUp} className="relative mx-auto w-full max-w-md">
-            <motion.div
-              className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-tr from-primary/10 via-indigo-200/40 to-accent/20 blur-2xl"
-              animate={reduceMotion ? undefined : { opacity: [0.6, 0.9, 0.6] }}
-              transition={{ duration: 6, repeat: Infinity }}
-            />
-            <div className="relative w-full aspect-[4/5] bg-gradient-to-br from-white via-secondary/60 to-blue-50 rounded-[2rem] p-8 flex items-center justify-center border border-white shadow-2xl">
-              <img src={LOGO_SRC} alt="" aria-hidden className="absolute top-6 left-6 h-8 opacity-30" />
-
-              {/* Phone Mockup */}
-              <motion.div
-                className="w-[280px] h-[580px] bg-white rounded-[3rem] border-[8px] border-slate-900 shadow-2xl relative overflow-hidden flex flex-col"
-                animate={floatY}
-                transition={floatTransition}
-              >
-                <div className="absolute top-0 inset-x-0 h-6 bg-slate-900 rounded-b-2xl w-32 mx-auto z-10"></div>
-                <div className="bg-primary px-6 pt-16 pb-8 text-white relative">
-                  <div className="text-sm opacity-80 mb-1">Status</div>
-                  <div className="text-2xl font-semibold flex items-center gap-2">
-                    <CheckCircle2 className="w-6 h-6 text-accent" /> Normal
-                  </div>
-                </div>
-                <div className="flex-1 bg-gray-50 p-6 space-y-4">
-                  <div className="bg-white p-4 rounded-2xl shadow-sm border space-y-4">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Device</span>
-                      <span className="text-primary font-medium flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-accent"></span> Connected
-                      </span>
-                    </div>
-                    <div className="w-full h-px bg-gray-100"></div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Wound Status</span>
-                      <span className="font-medium text-foreground">Normal</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Last reading</span>
-                      <span className="font-medium text-foreground">Just updated</span>
-                    </div>
-                  </div>
-                  <div className="mx-auto w-32 h-32 rounded-full border-4 border-accent/20 flex items-center justify-center relative mt-8">
-                    <motion.div
-                      className="w-24 h-24 rounded-full bg-accent/20 absolute"
-                      animate={reduceMotion ? undefined : { scale: [1, 1.2, 1], opacity: [0.5, 0.2, 0.5] }}
-                      transition={{ duration: 2.5, repeat: Infinity }}
-                    />
-                    <motion.div
-                      className="w-16 h-16 rounded-full bg-accent shadow-[0_0_30px_rgba(25,200,154,0.6)]"
-                      animate={reduceMotion ? undefined : { boxShadow: [
-                        "0 0 20px rgba(25,200,154,0.4)",
-                        "0 0 40px rgba(25,200,154,0.7)",
-                        "0 0 20px rgba(25,200,154,0.4)",
-                      ] }}
-                      transition={{ duration: 2.5, repeat: Infinity }}
-                    />
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Device Mockup */}
-              <motion.div
-                className="absolute -bottom-6 -right-4 w-48 h-24 bg-white rounded-2xl shadow-xl border border-gray-100 flex items-center p-4 gap-4 z-20"
-                initial={{ rotate: 8 }}
-                whileHover={{ rotate: 0, scale: 1.05 }}
-                animate={reduceMotion ? undefined : { y: [0, 8, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <motion.div
-                  className="w-3 h-3 rounded-full bg-accent shadow-[0_0_12px_rgba(25,200,154,0.9)]"
-                  animate={reduceMotion ? undefined : { opacity: [1, 0.4, 1] }}
-                  transition={{ duration: 1.6, repeat: Infinity }}
-                />
-                <div>
-                  <div className="text-sm font-bold text-primary">Enzora Sensor</div>
-                  <div className="text-xs text-muted-foreground">Syncing...</div>
-                </div>
-              </motion.div>
-            </div>
           </motion.div>
         </div>
       </Section>
