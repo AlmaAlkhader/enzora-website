@@ -1,0 +1,116 @@
+Add admin controls for changing the prices of the sold Enzora products.
+
+The admin dashboard should allow authorized admins to update product pricing without editing the code.
+
+Products to manage:
+1. Enzora Bandage Pack
+   - Default name: Enzora Bandage Pack
+   - Description: 5 bandages included
+   - Default price: 20
+   - Currency: USD
+   - Price label: $20
+
+2. Enzora Smart Device
+   - Default name: Enzora Smart Device
+   - Description: Device sold separately
+   - Default price: null or empty
+   - Price label: Contact us for pricing
+
+3. Complete Enzora Package
+   - Default name: Complete Enzora Package
+   - Description: Device + bandage pack
+   - Default price: null or empty
+   - Price label: Contact us for pricing
+
+Admin dashboard update:
+Add a new admin tab or page called:
+“Pricing”
+
+Inside the Pricing page, show product cards or a clean table with:
+- Product name
+- Description
+- Current price
+- Currency
+- Price display label
+- Active/inactive toggle if possible
+- Edit Price button
+- Save button
+- Cancel button
+
+Admin should be able to:
+- Change the bandage pack price
+- Add or change the device price
+- Add or change the complete package price
+- Set a product back to “Contact us for pricing”
+- Save changes to the database
+- See a success message after saving
+
+Important:
+The public website product cards and order section must use the prices from the database, not hardcoded prices.
+
+If the admin changes the bandage pack price from $20 to another price, the public website should automatically show the new price.
+
+If the admin sets the device or complete package price, the public website should show that price instead of “Contact us for pricing.”
+
+If a product has no price, show:
+“Contact us for pricing”
+
+Database update:
+Create a products or product_pricing table with these fields:
+- id
+- product_key
+- name
+- description
+- price
+- currency
+- price_label
+- is_active
+- updated_at
+
+Suggested product_key values:
+- bandage_pack
+- smart_device
+- complete_package
+
+Seed the database with the three default products if they do not already exist.
+
+Order form update:
+The product dropdown should read prices from the same products table.
+
+Show:
+- Enzora Bandage Pack - 5 bandages - current price
+- Enzora Smart Device - current price or Contact us for pricing
+- Complete Enzora Package - current price or Contact us for pricing
+
+When an order is submitted, save:
+- product_key
+- product_name_snapshot
+- product_price_snapshot
+- quantity
+- total_estimated_price if price exists
+
+This is important so old orders keep the price that was shown when the customer submitted the order, even if the admin changes the price later.
+
+Admin orders table update:
+Show:
+- Product selected
+- Quantity
+- Product price at time of order
+- Estimated total if available
+
+Security:
+Only logged-in admins can access the pricing page.
+Do not allow public users to edit prices.
+Do not expose admin pricing API endpoints without authentication.
+
+Design:
+Use the same Enzora admin dashboard style:
+- White cards
+- Indigo buttons
+- Soft borders
+- Status badges
+- Clean table layout
+- Responsive design
+
+Final result:
+Admins should be able to log in, go to the Pricing tab, change product prices using buttons/forms, save them to the database, and the public product cards/order form should update automatically.
