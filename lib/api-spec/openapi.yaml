@@ -14,6 +14,8 @@ tags:
     description: Public order/contact requests
   - name: admin
     description: Admin-protected order management
+  - name: settings
+    description: Public site settings
 paths:
   /healthz:
     get:
@@ -46,6 +48,38 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OrderConfirmation"
+
+  /social-links:
+    get:
+      operationId: getSocialLinks
+      tags: [settings]
+      summary: Get the public social media links
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SocialLinks"
+
+  /admin/social-links:
+    put:
+      operationId: updateSocialLinks
+      tags: [admin]
+      summary: Update the public social media links
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SocialLinksInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SocialLinks"
 
   /admin/login:
     post:
@@ -312,6 +346,40 @@ components:
       properties:
         ok:
           type: boolean
+
+    SocialLinks:
+      type: object
+      required: [instagram, facebook, linkedin, tiktok]
+      properties:
+        instagram:
+          type: string
+          nullable: true
+        facebook:
+          type: string
+          nullable: true
+        linkedin:
+          type: string
+          nullable: true
+        tiktok:
+          type: string
+          nullable: true
+
+    SocialLinksInput:
+      type: object
+      required: [instagram, facebook, linkedin, tiktok]
+      properties:
+        instagram:
+          type: string
+          nullable: true
+        facebook:
+          type: string
+          nullable: true
+        linkedin:
+          type: string
+          nullable: true
+        tiktok:
+          type: string
+          nullable: true
 
     OrdersSummary:
       type: object

@@ -19,4 +19,6 @@ export * from './ordersSummary';
 export * from './ordersSummaryByStatus';
 export * from './orderStatus';
 export * from './productSelection';
+export * from './socialLinks';
+export * from './socialLinksInput';
 export * from './updateOrderStatusInput';

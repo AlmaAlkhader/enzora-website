@@ -39,6 +39,35 @@ export const CreateOrderBody = zod.object({
 
 
 /**
+ * @summary Get the public social media links
+ */
+export const GetSocialLinksResponse = zod.object({
+  "instagram": zod.string().nullable(),
+  "facebook": zod.string().nullable(),
+  "linkedin": zod.string().nullable(),
+  "tiktok": zod.string().nullable()
+})
+
+
+/**
+ * @summary Update the public social media links
+ */
+export const UpdateSocialLinksBody = zod.object({
+  "instagram": zod.string().nullable(),
+  "facebook": zod.string().nullable(),
+  "linkedin": zod.string().nullable(),
+  "tiktok": zod.string().nullable()
+})
+
+export const UpdateSocialLinksResponse = zod.object({
+  "instagram": zod.string().nullable(),
+  "facebook": zod.string().nullable(),
+  "linkedin": zod.string().nullable(),
+  "tiktok": zod.string().nullable()
+})
+
+
+/**
  * @summary Admin login (password)
  */
 

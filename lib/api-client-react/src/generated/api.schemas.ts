@@ -98,6 +98,20 @@ export interface AdminMe {
   ok: boolean;
 }
 
+export interface SocialLinks {
+  instagram: string | null;
+  facebook: string | null;
+  linkedin: string | null;
+  tiktok: string | null;
+}
+
+export interface SocialLinksInput {
+  instagram: string | null;
+  facebook: string | null;
+  linkedin: string | null;
+  tiktok: string | null;
+}
+
 export type OrdersSummaryByStatus = {
   new: number;
   contacted: number;

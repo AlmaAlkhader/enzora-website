@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { SocialIcons } from "@/components/SocialIcons";
+import { SocialLinksEditor } from "@/components/SocialLinksEditor";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 const productLabel = (p?: string | null) => {
@@ -248,6 +249,8 @@ export default function AdminDashboard() {
             </Table>
           </div>
         </div>
+
+        <SocialLinksEditor />
       </main>
     </div>
   );

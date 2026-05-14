@@ -1,5 +1,7 @@
 import { Instagram, Facebook, Linkedin } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
+import { useGetSocialLinks, getGetSocialLinksQueryKey } from "@workspace/api-client-react";
+import type { SocialLinks } from "@workspace/api-client-react";
 
 const TikTokIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
@@ -7,36 +9,43 @@ const TikTokIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export type SocialLink = {
+export type SocialPlatformKey = "instagram" | "facebook" | "linkedin" | "tiktok";
+
+export type SocialPlatform = {
+  key: SocialPlatformKey;
   name: string;
-  url: string | null;
   label: string;
+  placeholder: string;
   Icon: ComponentType<SVGProps<SVGSVGElement>>;
 };
 
-export const socialLinks: SocialLink[] = [
+export const SOCIAL_PLATFORMS: SocialPlatform[] = [
   {
+    key: "instagram",
     name: "Instagram",
-    url: "https://www.instagram.com/enzora.bzu/",
     label: "Enzora Instagram",
+    placeholder: "https://www.instagram.com/your-handle",
     Icon: Instagram,
   },
   {
+    key: "facebook",
     name: "Facebook",
-    url: "https://www.facebook.com/profile.php?id=61574411847833",
     label: "Enzora Facebook",
+    placeholder: "https://www.facebook.com/your-page",
     Icon: Facebook,
   },
   {
+    key: "linkedin",
     name: "LinkedIn",
-    url: "https://www.linkedin.com/company/enzorabzu26",
     label: "Enzora LinkedIn",
+    placeholder: "https://www.linkedin.com/company/your-company",
     Icon: Linkedin,
   },
   {
+    key: "tiktok",
     name: "TikTok",
-    url: null,
     label: "Enzora TikTok",
+    placeholder: "https://www.tiktok.com/@your-handle",
     Icon: TikTokIcon,
   },
 ];
@@ -77,12 +86,23 @@ export function SocialIcons({
   const styles = variantStyles[variant];
   const baseBtn = `inline-flex items-center justify-center rounded-full border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${sz.box}`;
 
+  const { data } = useGetSocialLinks({
+    query: { staleTime: 60_000, queryKey: getGetSocialLinksQueryKey() },
+  });
+  const links: SocialLinks = data ?? {
+    instagram: null,
+    facebook: null,
+    linkedin: null,
+    tiktok: null,
+  };
+
   return (
     <ul className={`flex flex-wrap items-center gap-3 ${className}`}>
-      {socialLinks.map(({ name, url, label, Icon }) => {
+      {SOCIAL_PLATFORMS.map(({ key, name, label, Icon }) => {
+        const url = links[key];
         if (!url) {
           return (
-            <li key={name}>
+            <li key={key}>
               <span
                 role="img"
                 aria-label={`${label} (coming soon)`}
@@ -96,7 +116,7 @@ export function SocialIcons({
           );
         }
         return (
-          <li key={name}>
+          <li key={key}>
             <a
               href={url}
               target="_blank"
