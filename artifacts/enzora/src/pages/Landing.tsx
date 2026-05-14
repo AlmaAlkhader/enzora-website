@@ -106,9 +106,9 @@ const productOptions: ProductOption[] = [
 ];
 
 const appScreens = [
-  { src: `${import.meta.env.BASE_URL}app-screen-1.jpg`, label: "Home status screen" },
-  { src: `${import.meta.env.BASE_URL}app-screen-2.png`, label: "Color guide screen" },
-  { src: `${import.meta.env.BASE_URL}app-screen-3.png`, label: "Healing progress & alerts" },
+  { src: `${import.meta.env.BASE_URL}app-screen-normal.svg`, label: "Healing well" },
+  { src: `${import.meta.env.BASE_URL}app-screen-watch.svg`, label: "Watch closely" },
+  { src: `${import.meta.env.BASE_URL}app-screen-infection.svg`, label: "Infection alert" },
 ];
 
 const LOGO_SRC = `${import.meta.env.BASE_URL}enzora-logo.png`;
