@@ -9,6 +9,10 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface ErrorResponse {
+  error: string;
+}
+
 export type CustomerType = typeof CustomerType[keyof typeof CustomerType];
 
 
@@ -30,6 +34,29 @@ export const OrderStatus = {
   confirmed: 'confirmed',
   completed: 'completed',
   rejected: 'rejected',
+} as const;
+
+export type PaymentStatus = typeof PaymentStatus[keyof typeof PaymentStatus];
+
+
+export const PaymentStatus = {
+  pending: 'pending',
+  awaiting_confirmation: 'awaiting_confirmation',
+  paid: 'paid',
+  failed: 'failed',
+  refunded: 'refunded',
+  cancelled: 'cancelled',
+} as const;
+
+export type PaymentMethodKey = typeof PaymentMethodKey[keyof typeof PaymentMethodKey];
+
+
+export const PaymentMethodKey = {
+  cash_on_delivery: 'cash_on_delivery',
+  cash_on_pickup: 'cash_on_pickup',
+  bank_transfer: 'bank_transfer',
+  mobile_wallet: 'mobile_wallet',
+  contact_us: 'contact_us',
 } as const;
 
 export type ProductSelection = typeof ProductSelection[keyof typeof ProductSelection];
@@ -73,6 +100,34 @@ export interface UpdateProductInput {
   isActive: boolean;
 }
 
+export interface PaymentMethodPublic {
+  methodKey: PaymentMethodKey;
+  nameEn: string;
+  nameAr: string;
+  instructionsEn: string;
+  instructionsAr: string;
+}
+
+export interface AdminPaymentMethod {
+  methodKey: PaymentMethodKey;
+  nameEn: string;
+  nameAr: string;
+  instructionsEn: string;
+  instructionsAr: string;
+  isActive: boolean;
+}
+
+export interface UpdatePaymentMethodInput {
+  methodKey: PaymentMethodKey;
+  /** @minLength 1 */
+  nameEn: string;
+  /** @minLength 1 */
+  nameAr: string;
+  instructionsEn: string;
+  instructionsAr: string;
+  isActive: boolean;
+}
+
 export interface CreateOrderInput {
   /** @minLength 1 */
   fullName: string;
@@ -90,12 +145,17 @@ export interface CreateOrderInput {
   /** @minimum 1 */
   quantity: number;
   message?: string;
+  paymentMethod: PaymentMethodKey;
 }
 
 export interface OrderConfirmation {
   id: number;
   orderReference: string;
   status: OrderStatus;
+  paymentMethod: PaymentMethodKey;
+  paymentStatus: PaymentStatus;
+  amountDue?: number | null;
+  currency?: string;
 }
 
 export interface Order {
@@ -116,11 +176,39 @@ export interface Order {
   totalEstimatedPrice?: number | null;
   message?: string | null;
   status: OrderStatus;
+  paymentMethod?: PaymentMethodKey | null;
+  paymentStatus: PaymentStatus;
+  paymentNote?: string | null;
+  paymentReference?: string | null;
+  amountDue?: number | null;
+  currency: string;
+  paidAt?: string | null;
+  createdAt: string;
+}
+
+export interface OrderTrackingResult {
+  id: number;
+  orderReference: string;
+  productNameSnapshot: string | null;
+  productSelection: ProductSelection;
+  quantity: number;
+  status: OrderStatus;
+  paymentMethod: PaymentMethodKey | null;
+  paymentStatus: PaymentStatus;
+  amountDue?: number | null;
+  currency: string;
   createdAt: string;
 }
 
 export interface UpdateOrderStatusInput {
   status: OrderStatus;
+}
+
+export interface UpdateOrderPaymentInput {
+  paymentStatus?: PaymentStatus;
+  paymentNote?: string | null;
+  paymentReference?: string | null;
+  amountDue?: number | null;
 }
 
 export interface AdminLoginInput {
@@ -164,6 +252,10 @@ export interface OrdersSummary {
   byStatus: OrdersSummaryByStatus;
   recent: Order[];
 }
+
+export type TrackOrderParams = {
+ref: string;
+};
 
 export type ListOrdersParams = {
 status?: OrderStatus;

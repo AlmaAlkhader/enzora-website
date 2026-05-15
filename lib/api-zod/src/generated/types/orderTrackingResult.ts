@@ -8,13 +8,18 @@
 import type { OrderStatus } from './orderStatus';
 import type { PaymentMethodKey } from './paymentMethodKey';
 import type { PaymentStatus } from './paymentStatus';
+import type { ProductSelection } from './productSelection';
 
-export interface OrderConfirmation {
+export interface OrderTrackingResult {
   id: number;
   orderReference: string;
+  productNameSnapshot: string | null;
+  productSelection: ProductSelection;
+  quantity: number;
   status: OrderStatus;
-  paymentMethod: PaymentMethodKey;
+  paymentMethod: PaymentMethodKey | null;
   paymentStatus: PaymentStatus;
   amountDue?: number | null;
-  currency?: string;
+  currency: string;
+  createdAt: Date;
 }

@@ -7,6 +7,8 @@
  */
 import type { CustomerType } from './customerType';
 import type { OrderStatus } from './orderStatus';
+import type { PaymentMethodKey } from './paymentMethodKey';
+import type { PaymentStatus } from './paymentStatus';
 import type { ProductSelection } from './productSelection';
 
 export interface Order {
@@ -27,5 +29,12 @@ export interface Order {
   totalEstimatedPrice?: number | null;
   message?: string | null;
   status: OrderStatus;
+  paymentMethod?: PaymentMethodKey | null;
+  paymentStatus: PaymentStatus;
+  paymentNote?: string | null;
+  paymentReference?: string | null;
+  amountDue?: number | null;
+  currency: string;
+  paidAt?: Date | null;
   createdAt: Date;
 }

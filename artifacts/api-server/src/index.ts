@@ -1,7 +1,7 @@
 import { runMigrations } from "@workspace/db";
 import app from "./app";
 import { logger } from "./lib/logger";
-import { seedProducts } from "./lib/seed";
+import { seedPaymentMethods, seedProducts } from "./lib/seed";
 
 const rawPort = process.env["PORT"];
 
@@ -34,6 +34,7 @@ async function main() {
   }
 
   await seedProducts();
+  await seedPaymentMethods();
 
   app.listen(port, (err) => {
     if (err) {

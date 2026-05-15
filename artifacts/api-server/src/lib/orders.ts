@@ -40,6 +40,25 @@ export function serializeOrder(row: OrderRow) {
       | "confirmed"
       | "completed"
       | "rejected",
+    paymentMethod: (row.paymentMethod ?? null) as
+      | "cash_on_delivery"
+      | "cash_on_pickup"
+      | "bank_transfer"
+      | "mobile_wallet"
+      | "contact_us"
+      | null,
+    paymentStatus: (row.paymentStatus ?? "pending") as
+      | "pending"
+      | "awaiting_confirmation"
+      | "paid"
+      | "failed"
+      | "refunded"
+      | "cancelled",
+    paymentNote: row.paymentNote ?? null,
+    paymentReference: row.paymentReference ?? null,
+    amountDue: row.amountDue != null ? parseFloat(row.amountDue) : null,
+    currency: row.currency ?? "USD",
+    paidAt: row.paidAt ? row.paidAt.toISOString() : null,
     createdAt: row.createdAt.toISOString(),
   };
 }

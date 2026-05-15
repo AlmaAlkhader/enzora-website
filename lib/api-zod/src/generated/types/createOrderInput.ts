@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { CustomerType } from './customerType';
+import type { PaymentMethodKey } from './paymentMethodKey';
 import type { ProductSelection } from './productSelection';
 
 export interface CreateOrderInput {
@@ -25,4 +26,5 @@ export interface CreateOrderInput {
   /** @minimum 1 */
   quantity: number;
   message?: string;
+  paymentMethod: PaymentMethodKey;
 }

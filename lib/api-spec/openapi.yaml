@@ -18,6 +18,8 @@ tags:
     description: Public site settings
   - name: products
     description: Product and pricing management
+  - name: payment-methods
+    description: Payment method management
 paths:
   /healthz:
     get:
@@ -50,6 +52,46 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OrderConfirmation"
+
+  /orders/track:
+    get:
+      operationId: trackOrder
+      tags: [orders]
+      summary: Track an order by reference number (public, safe fields only)
+      parameters:
+        - name: ref
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderTrackingResult"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /payment-methods:
+    get:
+      operationId: listPaymentMethods
+      tags: [payment-methods]
+      summary: List active payment methods (public)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaymentMethodPublic"
 
   /products:
     get:
@@ -170,6 +212,42 @@ paths:
               schema:
                 $ref: "#/components/schemas/AdminProduct"
 
+  /admin/payment-methods:
+    get:
+      operationId: adminListPaymentMethods
+      tags: [admin]
+      summary: List all payment methods (admin)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminPaymentMethod"
+    put:
+      operationId: adminUpdatePaymentMethods
+      tags: [admin]
+      summary: Update payment method settings (active flag and instructions)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/UpdatePaymentMethodInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminPaymentMethod"
+
   /admin/orders:
     get:
       operationId: listOrders
@@ -264,6 +342,31 @@ paths:
         "204":
           description: Deleted
 
+  /admin/orders/{id}/payment:
+    patch:
+      operationId: updateOrderPayment
+      tags: [admin]
+      summary: Update order payment status and details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderPaymentInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
 components:
   schemas:
     HealthStatus:
@@ -273,6 +376,13 @@ components:
           type: string
       required: [status]
 
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
     CustomerType:
       type: string
       enum: [patient, caregiver, clinic, hospital, research, other]
@@ -280,6 +390,14 @@ components:
     OrderStatus:
       type: string
       enum: [new, contacted, confirmed, completed, rejected]
+
+    PaymentStatus:
+      type: string
+      enum: [pending, awaiting_confirmation, paid, failed, refunded, cancelled]
+
+    PaymentMethodKey:
+      type: string
+      enum: [cash_on_delivery, cash_on_pickup, bank_transfer, mobile_wallet, contact_us]
 
     ProductSelection:
       type: string
@@ -350,6 +468,57 @@ components:
         isActive:
           type: boolean
 
+    PaymentMethodPublic:
+      type: object
+      required: [methodKey, nameEn, nameAr, instructionsEn, instructionsAr]
+      properties:
+        methodKey:
+          $ref: "#/components/schemas/PaymentMethodKey"
+        nameEn:
+          type: string
+        nameAr:
+          type: string
+        instructionsEn:
+          type: string
+        instructionsAr:
+          type: string
+
+    AdminPaymentMethod:
+      type: object
+      required: [methodKey, nameEn, nameAr, instructionsEn, instructionsAr, isActive]
+      properties:
+        methodKey:
+          $ref: "#/components/schemas/PaymentMethodKey"
+        nameEn:
+          type: string
+        nameAr:
+          type: string
+        instructionsEn:
+          type: string
+        instructionsAr:
+          type: string
+        isActive:
+          type: boolean
+
+    UpdatePaymentMethodInput:
+      type: object
+      required: [methodKey, nameEn, nameAr, instructionsEn, instructionsAr, isActive]
+      properties:
+        methodKey:
+          $ref: "#/components/schemas/PaymentMethodKey"
+        nameEn:
+          type: string
+          minLength: 1
+        nameAr:
+          type: string
+          minLength: 1
+        instructionsEn:
+          type: string
+        instructionsAr:
+          type: string
+        isActive:
+          type: boolean
+
     CreateOrderInput:
       type: object
       required:
@@ -359,6 +528,7 @@ components:
         - customerType
         - productSelection
         - quantity
+        - paymentMethod
       properties:
         fullName:
           type: string
@@ -387,10 +557,12 @@ components:
           minimum: 1
         message:
           type: string
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethodKey"
 
     OrderConfirmation:
       type: object
-      required: [id, orderReference, status]
+      required: [id, orderReference, status, paymentMethod, paymentStatus]
       properties:
         id:
           type: integer
@@ -398,6 +570,15 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/OrderStatus"
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethodKey"
+        paymentStatus:
+          $ref: "#/components/schemas/PaymentStatus"
+        amountDue:
+          type: number
+          nullable: true
+        currency:
+          type: string
 
     Order:
       type: object
@@ -412,6 +593,8 @@ components:
         - productSelection
         - quantity
         - status
+        - paymentStatus
+        - currency
         - createdAt
       properties:
         id:
@@ -455,6 +638,67 @@ components:
           nullable: true
         status:
           $ref: "#/components/schemas/OrderStatus"
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethodKey"
+          nullable: true
+        paymentStatus:
+          $ref: "#/components/schemas/PaymentStatus"
+        paymentNote:
+          type: string
+          nullable: true
+        paymentReference:
+          type: string
+          nullable: true
+        amountDue:
+          type: number
+          nullable: true
+        currency:
+          type: string
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    OrderTrackingResult:
+      type: object
+      required:
+        - id
+        - orderReference
+        - productNameSnapshot
+        - productSelection
+        - quantity
+        - status
+        - paymentMethod
+        - paymentStatus
+        - currency
+        - createdAt
+      properties:
+        id:
+          type: integer
+        orderReference:
+          type: string
+        productNameSnapshot:
+          type: string
+          nullable: true
+        productSelection:
+          $ref: "#/components/schemas/ProductSelection"
+        quantity:
+          type: integer
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethodKey"
+          nullable: true
+        paymentStatus:
+          $ref: "#/components/schemas/PaymentStatus"
+        amountDue:
+          type: number
+          nullable: true
+        currency:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -465,6 +709,21 @@ components:
       properties:
         status:
           $ref: "#/components/schemas/OrderStatus"
+
+    UpdateOrderPaymentInput:
+      type: object
+      properties:
+        paymentStatus:
+          $ref: "#/components/schemas/PaymentStatus"
+        paymentNote:
+          type: string
+          nullable: true
+        paymentReference:
+          type: string
+          nullable: true
+        amountDue:
+          type: number
+          nullable: true
 
     AdminLoginInput:
       type: object

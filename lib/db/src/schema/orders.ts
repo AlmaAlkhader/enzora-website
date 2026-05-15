@@ -18,6 +18,13 @@ export const ordersTable = pgTable("orders", {
   totalEstimatedPrice: numeric("total_estimated_price", { precision: 14, scale: 2 }),
   message: text("message"),
   status: text("status").notNull().default("new"),
+  paymentMethod: text("payment_method"),
+  paymentStatus: text("payment_status").notNull().default("pending"),
+  paymentNote: text("payment_note"),
+  paymentReference: text("payment_reference"),
+  amountDue: numeric("amount_due", { precision: 14, scale: 2 }),
+  currency: text("currency").notNull().default("USD"),
+  paidAt: timestamp("paid_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

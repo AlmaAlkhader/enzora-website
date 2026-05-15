@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCreateOrder, useListProducts, ProductSelection, type Product } from "@workspace/api-client-react";
+import { useCreateOrder, useListProducts, useListPaymentMethods, ProductSelection, type Product, type PaymentMethodPublic } from "@workspace/api-client-react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import { SocialIcons } from "@/components/SocialIcons";
 import { WaveBackground } from "@/components/WaveBackground";
 import {
   Menu, X, CheckCircle2, Heart, Shield, ShieldCheck,
-  Sparkles, ArrowRight, Package, Building2, Lock, Mail
+  Sparkles, ArrowRight, Package, Building2, Lock, Mail, Languages
 } from "lucide-react";
 
 const PALESTINIAN_CITIES = [
@@ -37,6 +37,9 @@ const orderFormSchema = z.object({
   productSelection: z.enum(["bandage_pack", "smart_device", "complete_package"]),
   quantity: z.number().int().min(1),
   message: z.string().optional(),
+  paymentMethod: z.enum(["cash_on_delivery", "cash_on_pickup", "bank_transfer", "mobile_wallet", "contact_us"], {
+    required_error: "Please select a payment method",
+  }),
 }).refine(
   (data) => data.city !== "Other" || (data.customCity && data.customCity.trim().length > 0),
   { message: "Please enter your city", path: ["customCity"] },
@@ -46,7 +49,7 @@ type OrderFormValues = z.infer<typeof orderFormSchema>;
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as any } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 const stagger: Variants = {
@@ -129,13 +132,23 @@ const appScreens = [
 
 const LOGO_SRC = `${import.meta.env.BASE_URL}enzora-logo.png`;
 
+type OrderSuccessData = {
+  orderReference: string;
+  amountDue: number | null;
+  currency: string;
+  paymentMethod: string | null;
+};
+
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [orderSuccessRef, setOrderSuccessRef] = useState<string | null>(null);
+  const [orderSuccess, setOrderSuccess] = useState<OrderSuccessData | null>(null);
+  const [lang, setLang] = useState<"en" | "ar">("en");
+  const isAr = lang === "ar";
   const reduceMotion = useReducedMotion();
 
   const orderMutation = useCreateOrder();
   const { data: liveProducts = [], isLoading: isProductsLoading } = useListProducts();
+  const { data: paymentMethods = [], isLoading: isPaymentMethodsLoading } = useListPaymentMethods();
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderFormSchema),
@@ -155,6 +168,14 @@ export default function Landing() {
 
   const selectedProduct = form.watch("productSelection");
   const selectedCity = form.watch("city");
+  const selectedPaymentMethod = form.watch("paymentMethod");
+
+  const selectedProductData = liveProducts.find((p) => p.productKey === selectedProduct);
+  const hasPrice = selectedProductData?.price != null;
+  const unitPrice = selectedProductData?.price ?? null;
+  const productCurrency = selectedProductData?.currency ?? "USD";
+  const quantity = form.watch("quantity") || 1;
+  const estimatedTotal = hasPrice && unitPrice != null ? unitPrice * quantity : null;
 
   const onSubmit = (data: OrderFormValues) => {
     const actualCity = data.city === "Other" ? (data.customCity ?? "") : data.city;
@@ -169,10 +190,16 @@ export default function Landing() {
         productSelection: data.productSelection,
         quantity: data.quantity,
         message: data.message,
+        paymentMethod: data.paymentMethod,
       },
     }, {
       onSuccess: (res) => {
-        setOrderSuccessRef(res.orderReference);
+        setOrderSuccess({
+          orderReference: res.orderReference,
+          amountDue: res.amountDue ?? null,
+          currency: res.currency ?? "USD",
+          paymentMethod: res.paymentMethod ?? null,
+        });
         form.reset();
       },
     });
@@ -253,8 +280,16 @@ export default function Landing() {
             <button onClick={() => scrollTo("app")} className="hover:text-primary transition-colors">App</button>
             <button onClick={() => scrollTo("partners")} className="hover:text-primary transition-colors">Partners</button>
             <button onClick={() => scrollTo("faq")} className="hover:text-primary transition-colors">FAQ</button>
+            <button
+              onClick={() => setLang(isAr ? "en" : "ar")}
+              className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary/80 hover:text-primary transition-colors border border-primary/20 rounded-full px-3 py-1.5"
+              aria-label="Toggle language"
+            >
+              <Languages className="w-3.5 h-3.5" />
+              {isAr ? "EN" : "عربي"}
+            </button>
             <Button onClick={() => scrollTo("order")} className="rounded-full px-6 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all">
-              Order Now
+              {isAr ? "اطلب الآن" : "Order Now"}
             </Button>
           </div>
 
@@ -570,8 +605,8 @@ export default function Landing() {
             </div>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="bg-white text-foreground p-8 md:p-12 rounded-[2rem] shadow-2xl">
-            {orderSuccessRef ? (
+          <motion.div variants={fadeUp} className={`bg-white text-foreground p-8 md:p-12 rounded-[2rem] shadow-2xl ${isAr ? "text-right" : ""}`} dir={isAr ? "rtl" : "ltr"}>
+            {orderSuccess ? (
               <div className="text-center py-12 space-y-6">
                 <motion.div
                   initial={{ scale: 0.6, opacity: 0 }}
@@ -581,16 +616,36 @@ export default function Landing() {
                 >
                   <CheckCircle2 className="w-10 h-10" />
                 </motion.div>
-                <h3 className="text-3xl font-bold">Request Submitted</h3>
-                <p className="text-muted-foreground text-lg max-w-lg mx-auto">
-                  Your Enzora order request was submitted successfully. Our team will contact you soon.
-                </p>
-                <div className="inline-block bg-gray-50 border px-6 py-3 rounded-xl font-mono font-medium text-base mt-2">
-                  Ref: {orderSuccessRef}
-                </div>
+                {isAr ? (
+                  <>
+                    <h3 className="text-3xl font-bold">تم إرسال الطلب</h3>
+                    {orderSuccess.amountDue != null ? (
+                      <p className="text-muted-foreground text-lg max-w-lg mx-auto">
+                        تم تقديم طلبك <strong className="font-mono">{orderSuccess.orderReference}</strong> بنجاح. المبلغ الإجمالي المقدّر هو <strong>{orderSuccess.currency} {Number(orderSuccess.amountDue).toFixed(2)}</strong>. سيتواصل معك فريقنا قريباً لتأكيد تفاصيل الدفع.
+                      </p>
+                    ) : (
+                      <p className="text-muted-foreground text-lg max-w-lg mx-auto">
+                        تم تقديم طلبك <strong className="font-mono">{orderSuccess.orderReference}</strong> بنجاح. سيتواصل معك فريقنا قريباً لتأكيد التسعير وترتيب الدفع.
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-3xl font-bold">Request Submitted</h3>
+                    {orderSuccess.amountDue != null ? (
+                      <p className="text-muted-foreground text-lg max-w-lg mx-auto">
+                        Your order <strong className="font-mono">{orderSuccess.orderReference}</strong> has been submitted. Your estimated total is <strong>{orderSuccess.currency} {Number(orderSuccess.amountDue).toFixed(2)}</strong>. Our team will contact you shortly to confirm payment details.
+                      </p>
+                    ) : (
+                      <p className="text-muted-foreground text-lg max-w-lg mx-auto">
+                        Your order <strong className="font-mono">{orderSuccess.orderReference}</strong> has been submitted. Our team will contact you soon to confirm pricing and arrange payment.
+                      </p>
+                    )}
+                  </>
+                )}
                 <div className="pt-6">
-                  <Button variant="outline" size="lg" className="rounded-full" onClick={() => setOrderSuccessRef(null)}>
-                    Submit another request
+                  <Button variant="outline" size="lg" className="rounded-full" onClick={() => setOrderSuccess(null)}>
+                    {isAr ? "إرسال طلب آخر" : "Submit another request"}
                   </Button>
                 </div>
               </div>
@@ -742,16 +797,115 @@ export default function Landing() {
 
                   <FormField control={form.control} name="message" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Message (optional)</FormLabel>
+                      <FormLabel>{isAr ? "رسالة (اختياري)" : "Message (optional)"}</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Any questions or additional details about your order..." className="resize-none h-32" {...field} />
+                        <Textarea placeholder={isAr ? "أي أسئلة أو تفاصيل إضافية..." : "Any questions or additional details about your order..."} className="resize-none h-32" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
 
+                  {/* Payment Method Section */}
+                  <FormField
+                    control={form.control}
+                    name="paymentMethod"
+                    render={({ field, fieldState }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-semibold">
+                          {isAr ? "طريقة الدفع" : "Payment Method"}
+                        </FormLabel>
+                        {isPaymentMethodsLoading ? (
+                          <div className="grid gap-3 mt-2">
+                            {[0, 1, 2].map((i) => (
+                              <div key={i} className="h-16 rounded-xl border bg-gray-50 animate-pulse" />
+                            ))}
+                          </div>
+                        ) : paymentMethods.length === 0 ? (
+                          <p className="text-sm text-muted-foreground mt-2">
+                            {isAr ? "طرق الدفع غير متاحة حالياً." : "Payment methods are not available right now."}
+                          </p>
+                        ) : (
+                          <div className="grid gap-3 mt-2">
+                            {paymentMethods.map((method) => {
+                              const isSelected = field.value === method.methodKey;
+                              const name = isAr ? method.nameAr : method.nameEn;
+                              const instructions = isAr ? method.instructionsAr : method.instructionsEn;
+                              return (
+                                <button
+                                  key={method.methodKey}
+                                  type="button"
+                                  onClick={() => field.onChange(method.methodKey)}
+                                  className={`w-full text-left rounded-xl border-2 p-4 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                                    isSelected
+                                      ? "border-primary bg-primary/5 shadow-sm"
+                                      : "border-gray-200 bg-white hover:border-primary/40"
+                                  }`}
+                                  dir={isAr ? "rtl" : "ltr"}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                      isSelected ? "border-primary" : "border-gray-300"
+                                    }`}>
+                                      {isSelected && (
+                                        <div className="w-2.5 h-2.5 rounded-full bg-accent" />
+                                      )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className={`font-semibold text-sm ${isSelected ? "text-primary" : "text-foreground"}`}>
+                                        {name}
+                                      </div>
+                                      {isSelected && (
+                                        <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                          {instructions}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                        {fieldState.error && (
+                          <p className="text-sm font-medium text-destructive mt-1">{fieldState.error.message}</p>
+                        )}
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Price Summary */}
+                  <div className={`rounded-xl border p-4 ${hasPrice ? "bg-primary/5 border-primary/20" : "bg-gray-50 border-gray-200"}`}>
+                    <div className="text-sm font-semibold mb-2 text-foreground">
+                      {isAr ? "ملخص الطلب" : "Order Summary"}
+                    </div>
+                    {hasPrice && unitPrice != null ? (
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{isAr ? "سعر الوحدة" : "Unit price"}</span>
+                          <span className="font-medium">{productCurrency} {unitPrice.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{isAr ? "الكمية" : "Quantity"}</span>
+                          <span className="font-medium">{quantity}</span>
+                        </div>
+                        <div className="flex justify-between pt-1 border-t border-primary/15 font-semibold">
+                          <span>{isAr ? "الإجمالي المقدّر" : "Estimated total"}</span>
+                          <span className="text-primary">{productCurrency} {(estimatedTotal ?? 0).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {isAr
+                          ? "سيتم تأكيد التسعير من قبل فريق Enzora."
+                          : "Pricing will be confirmed by the Enzora team."}
+                      </p>
+                    )}
+                  </div>
+
                   <Button type="submit" size="lg" className="w-full text-lg h-14 rounded-full mt-2 shadow-lg shadow-primary/20" disabled={orderMutation.isPending}>
-                    {orderMutation.isPending ? "Submitting..." : "Submit Order Request"}
+                    {orderMutation.isPending
+                      ? (isAr ? "جارٍ الإرسال..." : "Submitting...")
+                      : (isAr ? "إرسال طلب الشراء" : "Submit Order Request")}
                   </Button>
                 </form>
               </Form>

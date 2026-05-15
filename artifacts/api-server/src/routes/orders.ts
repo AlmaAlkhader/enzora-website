@@ -1,10 +1,51 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { CreateOrderBody } from "@workspace/api-zod";
-import { db, ordersTable, productsTable } from "@workspace/db";
+import { db, ordersTable, productsTable, paymentMethodsTable } from "@workspace/db";
 import { generateReference, serializeOrder } from "../lib/orders";
 
 const router: IRouter = Router();
+
+router.get("/orders/track", async (req, res) => {
+  const ref = typeof req.query["ref"] === "string" ? req.query["ref"].trim() : "";
+  if (!ref) {
+    res.status(400).json({ error: "ref query parameter is required" });
+    return;
+  }
+  const [row] = await db
+    .select()
+    .from(ordersTable)
+    .where(eq(ordersTable.orderReference, ref));
+  if (!row) {
+    res.status(404).json({ error: "Order not found" });
+    return;
+  }
+  res.json({
+    id: row.id,
+    orderReference: row.orderReference,
+    productNameSnapshot: row.productNameSnapshot ?? null,
+    productSelection: row.productSelection as "bandage_pack" | "smart_device" | "complete_package",
+    quantity: row.quantity,
+    status: row.status as "new" | "contacted" | "confirmed" | "completed" | "rejected",
+    paymentMethod: (row.paymentMethod ?? null) as
+      | "cash_on_delivery"
+      | "cash_on_pickup"
+      | "bank_transfer"
+      | "mobile_wallet"
+      | "contact_us"
+      | null,
+    paymentStatus: (row.paymentStatus ?? "pending") as
+      | "pending"
+      | "awaiting_confirmation"
+      | "paid"
+      | "failed"
+      | "refunded"
+      | "cancelled",
+    amountDue: row.amountDue != null ? parseFloat(row.amountDue) : null,
+    currency: row.currency ?? "USD",
+    createdAt: row.createdAt.toISOString(),
+  });
+});
 
 router.post("/orders", async (req, res) => {
   const parsed = CreateOrderBody.safeParse(req.body);
@@ -13,6 +54,17 @@ router.post("/orders", async (req, res) => {
     return;
   }
   const input = parsed.data;
+
+  const [activeMethod] = await db
+    .select()
+    .from(paymentMethodsTable)
+    .where(eq(paymentMethodsTable.methodKey, input.paymentMethod));
+
+  if (!activeMethod || !activeMethod.isActive) {
+    res.status(400).json({ error: "Selected payment method is not available" });
+    return;
+  }
+
   const orderReference = generateReference();
   const country = input.country ?? null;
   const city = input.city ?? null;
@@ -34,6 +86,13 @@ router.post("/orders", async (req, res) => {
       ? String(parseFloat(productPriceSnapshot) * input.quantity)
       : null;
 
+  const amountDue =
+    productPriceSnapshot != null
+      ? String(parseFloat(productPriceSnapshot) * input.quantity)
+      : null;
+
+  const currency = productCurrencySnapshot ?? "USD";
+
   const [row] = await db
     .insert(ordersTable)
     .values({
@@ -53,6 +112,10 @@ router.post("/orders", async (req, res) => {
       totalEstimatedPrice,
       message: input.message ?? null,
       status: "new",
+      paymentMethod: input.paymentMethod,
+      paymentStatus: "pending",
+      amountDue,
+      currency,
     })
     .returning();
   if (!row) {
@@ -64,6 +127,10 @@ router.post("/orders", async (req, res) => {
     id: serialized.id,
     orderReference: serialized.orderReference,
     status: serialized.status,
+    paymentMethod: serialized.paymentMethod,
+    paymentStatus: serialized.paymentStatus,
+    amountDue: serialized.amountDue,
+    currency: serialized.currency,
   });
 });
 

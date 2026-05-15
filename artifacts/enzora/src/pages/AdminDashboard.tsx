@@ -8,22 +8,33 @@ import {
   useListOrders,
   useUpdateOrderStatus,
   useDeleteOrder,
+  useUpdateOrderPayment,
   getListOrdersQueryKey,
   getGetOrdersSummaryQueryKey,
   useAdminListProducts,
   getAdminListProductsQueryKey,
   useAdminUpdateProduct,
+  useAdminListPaymentMethods,
+  useAdminUpdatePaymentMethods,
+  getAdminListPaymentMethodsQueryKey,
+  PaymentMethodKey,
+  PaymentStatus,
+  OrderStatus,
   type AdminProduct,
+  type Order,
+  type AdminPaymentMethod,
 } from "@workspace/api-client-react";
 import { clearAdminToken } from "@/lib/auth-fetch";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { SocialIcons } from "@/components/SocialIcons";
 import { SocialLinksEditor } from "@/components/SocialLinksEditor";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 const productLabel = (p?: string | null) => {
   switch (p) {
@@ -34,12 +45,27 @@ const productLabel = (p?: string | null) => {
   }
 };
 
-type Tab = "orders" | "products" | "settings";
+const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  pending: "Pending",
+  awaiting_confirmation: "Awaiting Confirmation",
+  paid: "Paid",
+  failed: "Failed",
+  refunded: "Refunded",
+  cancelled: "Cancelled",
+};
+
+type Tab = "orders" | "products" | "payment-settings" | "settings";
 
 type EditState = {
   price: string;
   currency: string;
   priceLabel: string;
+};
+
+type PaymentEditState = {
+  paymentNote: string;
+  paymentReference: string;
+  amountDue: string;
 };
 
 function ProductsPricingPanel() {
@@ -201,6 +227,339 @@ function ProductsPricingPanel() {
   );
 }
 
+function PaymentSettingsPanel() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { data: methods = [], isLoading } = useAdminListPaymentMethods();
+  const updateMethods = useAdminUpdatePaymentMethods();
+
+  type MethodEdit = {
+    methodKey: PaymentMethodKey;
+    nameEn: string;
+    nameAr: string;
+    instructionsEn: string;
+    instructionsAr: string;
+    isActive: boolean;
+  };
+
+  const [edits, setEdits] = useState<Record<string, MethodEdit>>({});
+  const [initialized, setInitialized] = useState(false);
+
+  if (!initialized && methods.length > 0) {
+    const init: Record<string, MethodEdit> = {};
+    for (const m of methods) {
+      init[m.methodKey] = {
+        methodKey: m.methodKey,
+        nameEn: m.nameEn,
+        nameAr: m.nameAr,
+        instructionsEn: m.instructionsEn,
+        instructionsAr: m.instructionsAr,
+        isActive: m.isActive,
+      };
+    }
+    setEdits(init);
+    setInitialized(true);
+  }
+
+  const updateField = (methodKey: string, field: keyof MethodEdit, value: string | boolean) => {
+    setEdits((prev) => ({
+      ...prev,
+      [methodKey]: { ...prev[methodKey]!, [field]: value },
+    }));
+  };
+
+  const saveMethod = (methodKey: string) => {
+    const edit = edits[methodKey];
+    if (!edit) return;
+    updateMethods.mutate(
+      { data: Object.values(edits).map((e) => ({ ...e })) },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getAdminListPaymentMethodsQueryKey() });
+          toast({ title: "Payment method saved." });
+        },
+        onError: () => {
+          toast({ title: "Failed to save payment method", variant: "destructive" });
+        },
+      },
+    );
+  };
+
+  const toggleActive = (methodKey: string) => {
+    const current = edits[methodKey]?.isActive ?? false;
+    const newEdits = {
+      ...edits,
+      [methodKey]: { ...edits[methodKey]!, isActive: !current },
+    };
+    setEdits(newEdits);
+    updateMethods.mutate(
+      { data: Object.values(newEdits).map((e) => ({ ...e })) },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getAdminListPaymentMethodsQueryKey() });
+          toast({ title: `Payment method ${!current ? "enabled" : "disabled"}.` });
+        },
+        onError: () => {
+          toast({ title: "Failed to update payment method", variant: "destructive" });
+        },
+      },
+    );
+  };
+
+  if (isLoading) {
+    return <div className="p-8 text-center text-muted-foreground">Loading payment methods...</div>;
+  }
+
+  return (
+    <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+      <div className="p-4 border-b bg-gray-50/50">
+        <h2 className="font-medium">Payment Settings</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Enable or disable payment methods and edit their displayed instructions. Active methods appear on the public order form.
+        </p>
+      </div>
+      <div className="divide-y">
+        {methods.map((m) => {
+          const edit = edits[m.methodKey];
+          if (!edit) return null;
+          return (
+            <div key={m.methodKey} className="p-5">
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <div>
+                  <div className="font-semibold">{m.nameEn}</div>
+                  <div className="text-sm text-muted-foreground font-mono">{m.methodKey}</div>
+                </div>
+                <button
+                  onClick={() => toggleActive(m.methodKey)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    edit.isActive ? "bg-primary" : "bg-gray-200"
+                  }`}
+                  aria-label={`${edit.isActive ? "Disable" : "Enable"} ${m.nameEn}`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                      edit.isActive ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Name (English)</label>
+                  <Input
+                    value={edit.nameEn}
+                    onChange={(e) => updateField(m.methodKey, "nameEn", e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Name (Arabic)</label>
+                  <Input
+                    value={edit.nameAr}
+                    onChange={(e) => updateField(m.methodKey, "nameAr", e.target.value)}
+                    dir="rtl"
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Instructions (English)</label>
+                  <Textarea
+                    value={edit.instructionsEn}
+                    onChange={(e) => updateField(m.methodKey, "instructionsEn", e.target.value)}
+                    className="resize-none h-20 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Instructions (Arabic)</label>
+                  <Textarea
+                    value={edit.instructionsAr}
+                    onChange={(e) => updateField(m.methodKey, "instructionsAr", e.target.value)}
+                    dir="rtl"
+                    className="resize-none h-20 text-sm"
+                  />
+                </div>
+              </div>
+              <div className="mt-3">
+                <Button
+                  size="sm"
+                  onClick={() => saveMethod(m.methodKey)}
+                  disabled={updateMethods.isPending}
+                >
+                  Save
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function OrderPaymentPanel({ order, onUpdate }: { order: Order; onUpdate: () => void }) {
+  const { toast } = useToast();
+  const updatePayment = useUpdateOrderPayment();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [paymentEdit, setPaymentEdit] = useState<PaymentEditState>({
+    paymentNote: order.paymentNote ?? "",
+    paymentReference: order.paymentReference ?? "",
+    amountDue: order.amountDue != null ? String(order.amountDue) : "",
+  });
+
+  const handlePaymentStatusChange = (newStatus: PaymentStatus) => {
+    updatePayment.mutate(
+      { id: order.id, data: { paymentStatus: newStatus } },
+      {
+        onSuccess: () => {
+          toast({ title: "Payment status updated" });
+          onUpdate();
+        },
+        onError: () => {
+          toast({ title: "Failed to update payment status", variant: "destructive" });
+        },
+      },
+    );
+  };
+
+  const handleSavePaymentDetails = () => {
+    updatePayment.mutate(
+      {
+        id: order.id,
+        data: {
+          paymentNote: paymentEdit.paymentNote.trim() || null,
+          paymentReference: paymentEdit.paymentReference.trim() || null,
+          amountDue: paymentEdit.amountDue.trim() !== "" ? parseFloat(paymentEdit.amountDue) : null,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast({ title: "Payment details saved" });
+          onUpdate();
+        },
+        onError: () => {
+          toast({ title: "Failed to save payment details", variant: "destructive" });
+        },
+      },
+    );
+  };
+
+  const statusColor: Record<string, string> = {
+    pending: "text-gray-600 bg-gray-100",
+    awaiting_confirmation: "text-blue-700 bg-blue-50",
+    paid: "text-green-700 bg-green-100",
+    failed: "text-red-700 bg-red-50",
+    refunded: "text-orange-700 bg-orange-50",
+    cancelled: "text-gray-700 bg-gray-100",
+  };
+
+  return (
+    <div className="border rounded-lg bg-gray-50/50 overflow-hidden">
+      <button
+        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-gray-100/50 transition-colors"
+        onClick={() => setIsExpanded((v) => !v)}
+      >
+        <span className="flex items-center gap-2">
+          Payment
+          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${statusColor[order.paymentStatus] ?? "bg-gray-100 text-gray-600"}`}>
+            {PAYMENT_STATUS_LABELS[order.paymentStatus] ?? order.paymentStatus}
+          </span>
+          {order.amountDue != null && (
+            <span className="text-xs text-muted-foreground font-mono">
+              {order.currency} {Number(order.amountDue).toFixed(2)}
+            </span>
+          )}
+        </span>
+        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      </button>
+
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-4 border-t bg-white">
+          <div className="pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Payment Method</div>
+              <div className="font-medium">{order.paymentMethod ?? "—"}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Currency</div>
+              <div className="font-medium">{order.currency}</div>
+            </div>
+            {order.paymentReference && (
+              <div>
+                <div className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Payment Reference</div>
+                <div className="font-mono text-sm">{order.paymentReference}</div>
+              </div>
+            )}
+            {order.paidAt && (
+              <div>
+                <div className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">Paid At</div>
+                <div className="text-sm">{new Date(order.paidAt).toLocaleString()}</div>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Update Payment Status</div>
+            <div className="flex flex-wrap gap-2">
+              {(["awaiting_confirmation", "paid", "failed", "refunded", "cancelled"] as PaymentStatus[]).map((status) => (
+                <Button
+                  key={status}
+                  size="sm"
+                  variant={order.paymentStatus === status ? "default" : "outline"}
+                  className="h-7 text-xs"
+                  disabled={updatePayment.isPending || order.paymentStatus === status}
+                  onClick={() => handlePaymentStatusChange(status)}
+                >
+                  {PAYMENT_STATUS_LABELS[status]}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Amount Due</label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="e.g. 40.00"
+                value={paymentEdit.amountDue}
+                onChange={(e) => setPaymentEdit((s) => ({ ...s, amountDue: e.target.value }))}
+                className="h-9 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Payment Reference</label>
+              <Input
+                placeholder="e.g. TXN-12345"
+                value={paymentEdit.paymentReference}
+                onChange={(e) => setPaymentEdit((s) => ({ ...s, paymentReference: e.target.value }))}
+                className="h-9 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Payment Note</label>
+              <Input
+                placeholder="Internal note..."
+                value={paymentEdit.paymentNote}
+                onChange={(e) => setPaymentEdit((s) => ({ ...s, paymentNote: e.target.value }))}
+                className="h-9 text-sm"
+              />
+            </div>
+          </div>
+          <Button
+            size="sm"
+            onClick={handleSavePaymentDetails}
+            disabled={updatePayment.isPending}
+          >
+            Save Payment Details
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
@@ -221,11 +580,11 @@ export default function AdminDashboard() {
     }
   }, [isError, setLocation]);
 
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [search, setSearch] = useState("");
 
   const params = {
-    ...(statusFilter !== "all" ? { status: statusFilter as any } : {}),
+    ...(statusFilter !== "all" ? { status: statusFilter } : {}),
     ...(search ? { search } : {})
   };
 
@@ -247,9 +606,9 @@ export default function AdminDashboard() {
     setLocation("/admin/login");
   };
 
-  const handleStatusChange = (id: number, newStatus: string) => {
+  const handleStatusChange = (id: number, newStatus: OrderStatus) => {
     updateStatus.mutate(
-      { id, data: { status: newStatus as any } },
+      { id, data: { status: newStatus } },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey(params) });
@@ -271,6 +630,10 @@ export default function AdminDashboard() {
         }
       }
     );
+  };
+
+  const handlePaymentUpdate = () => {
+    queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey(params) });
   };
 
   return (
@@ -308,164 +671,185 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="flex gap-1 border-b">
-          <button
-            onClick={() => setActiveTab("orders")}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${activeTab === "orders" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-          >
-            Orders
-          </button>
-          <button
-            onClick={() => setActiveTab("products")}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${activeTab === "products" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-          >
-            Products & Pricing
-          </button>
-          <button
-            onClick={() => setActiveTab("settings")}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${activeTab === "settings" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-          >
-            Settings
-          </button>
+        <div className="flex gap-1 border-b overflow-x-auto">
+          {(["orders", "products", "payment-settings", "settings"] as Tab[]).map((tab) => {
+            const labels: Record<Tab, string> = {
+              orders: "Orders",
+              products: "Products & Pricing",
+              "payment-settings": "Payment Settings",
+              settings: "Settings",
+            };
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ${activeTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+              >
+                {labels[tab]}
+              </button>
+            );
+          })}
         </div>
 
         {activeTab === "orders" && (
-          <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-            <div className="p-4 border-b bg-gray-50/50 flex flex-col sm:flex-row gap-4 items-center justify-between">
-              <h2 className="font-medium">Orders</h2>
-              <div className="flex gap-4 w-full sm:w-auto">
-                <Input
-                  placeholder="Search..."
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className="max-w-[200px]"
-                />
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Filter status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="new">New</SelectItem>
-                    <SelectItem value="contacted">Contacted</SelectItem>
-                    <SelectItem value="confirmed">Confirmed</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
+          <div className="space-y-4">
+            <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+              <div className="p-4 border-b bg-gray-50/50 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <h2 className="font-medium">Orders</h2>
+                <div className="flex gap-4 w-full sm:w-auto">
+                  <Input
+                    placeholder="Search..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="max-w-[200px]"
+                  />
+                  <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as OrderStatus | "all")}>
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue placeholder="Filter status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="new">New</SelectItem>
+                      <SelectItem value="contacted">Contacted</SelectItem>
+                      <SelectItem value="confirmed">Confirmed</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Ref</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Country / City</TableHead>
+                      <TableHead>Product</TableHead>
+                      <TableHead>Qty</TableHead>
+                      <TableHead>Price at Order</TableHead>
+                      <TableHead>Est. Total</TableHead>
+                      <TableHead>Message</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isOrdersLoading ? (
+                      <TableRow><TableCell colSpan={12} className="text-center py-8">Loading...</TableCell></TableRow>
+                    ) : orders.length === 0 ? (
+                      <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">No orders found</TableCell></TableRow>
+                    ) : (
+                      orders.map(o => (
+                        <TableRow key={o.id}>
+                          <TableCell className="font-mono text-xs">{o.orderReference}</TableCell>
+                          <TableCell className="whitespace-nowrap">{new Date(o.createdAt).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <div className="font-medium">{o.fullName}</div>
+                            <div className="text-xs text-muted-foreground">{o.email}</div>
+                            <div className="text-xs text-muted-foreground">{o.phone}</div>
+                          </TableCell>
+                          <TableCell className="capitalize">{o.customerType}</TableCell>
+                          <TableCell>
+                            {o.country || o.city ? (
+                              <div>
+                                {o.country && <div className="font-medium text-sm">{o.country}</div>}
+                                {o.city && <div className="text-xs text-muted-foreground">{o.city}</div>}
+                              </div>
+                            ) : (
+                              <span className="text-sm">{o.countryCity || "—"}</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-medium text-sm">
+                              {o.productNameSnapshot ?? productLabel(o.productSelection)}
+                            </div>
+                          </TableCell>
+                          <TableCell>{o.quantity}</TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {o.productPriceSnapshot != null
+                              ? `${o.productCurrencySnapshot ?? "USD"} ${Number(o.productPriceSnapshot).toFixed(2)}`
+                              : <span className="text-xs text-muted-foreground">Contact us</span>}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {o.totalEstimatedPrice != null
+                              ? `${o.productCurrencySnapshot ?? "USD"} ${Number(o.totalEstimatedPrice).toFixed(2)}`
+                              : <span className="text-xs text-muted-foreground">—</span>}
+                          </TableCell>
+                          <TableCell className="max-w-[200px]">
+                            {o.message ? (
+                              <div className="text-xs text-muted-foreground whitespace-pre-wrap break-words">{o.message}</div>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Select value={o.status} onValueChange={(v) => handleStatusChange(o.id, v as OrderStatus)}>
+                              <SelectTrigger className="h-8 w-[120px] text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="new">New</SelectItem>
+                                <SelectItem value="contacted">Contacted</SelectItem>
+                                <SelectItem value="confirmed">Confirmed</SelectItem>
+                                <SelectItem value="completed">Completed</SelectItem>
+                                <SelectItem value="rejected">Rejected</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="sm" className="text-destructive h-8 px-2">Delete</Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete order?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete order {o.orderReference}? This cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDelete(o.id)} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Ref</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Country / City</TableHead>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Qty</TableHead>
-                    <TableHead>Price at Order</TableHead>
-                    <TableHead>Est. Total</TableHead>
-                    <TableHead>Message</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isOrdersLoading ? (
-                    <TableRow><TableCell colSpan={12} className="text-center py-8">Loading...</TableCell></TableRow>
-                  ) : orders.length === 0 ? (
-                    <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">No orders found</TableCell></TableRow>
-                  ) : (
-                    orders.map(o => (
-                      <TableRow key={o.id}>
-                        <TableCell className="font-mono text-xs">{o.orderReference}</TableCell>
-                        <TableCell className="whitespace-nowrap">{new Date(o.createdAt).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <div className="font-medium">{o.fullName}</div>
-                          <div className="text-xs text-muted-foreground">{o.email}</div>
-                          <div className="text-xs text-muted-foreground">{o.phone}</div>
-                        </TableCell>
-                        <TableCell className="capitalize">{o.customerType}</TableCell>
-                        <TableCell>
-                          {o.country || o.city ? (
-                            <div>
-                              {o.country && <div className="font-medium text-sm">{o.country}</div>}
-                              {o.city && <div className="text-xs text-muted-foreground">{o.city}</div>}
-                            </div>
-                          ) : (
-                            <span className="text-sm">{o.countryCity || "—"}</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium text-sm">
-                            {o.productNameSnapshot ?? productLabel(o.productSelection)}
-                          </div>
-                        </TableCell>
-                        <TableCell>{o.quantity}</TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {o.productPriceSnapshot != null
-                            ? `${o.productCurrencySnapshot ?? "USD"} ${Number(o.productPriceSnapshot).toFixed(2)}`
-                            : <span className="text-xs text-muted-foreground">Contact us</span>}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {o.totalEstimatedPrice != null
-                            ? `${o.productCurrencySnapshot ?? "USD"} ${Number(o.totalEstimatedPrice).toFixed(2)}`
-                            : <span className="text-xs text-muted-foreground">—</span>}
-                        </TableCell>
-                        <TableCell className="max-w-[200px]">
-                          {o.message ? (
-                            <div className="text-xs text-muted-foreground whitespace-pre-wrap break-words">{o.message}</div>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Select value={o.status} onValueChange={(v) => handleStatusChange(o.id, v)}>
-                            <SelectTrigger className="h-8 w-[120px] text-xs">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="new">New</SelectItem>
-                              <SelectItem value="contacted">Contacted</SelectItem>
-                              <SelectItem value="confirmed">Confirmed</SelectItem>
-                              <SelectItem value="completed">Completed</SelectItem>
-                              <SelectItem value="rejected">Rejected</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="text-destructive h-8 px-2">Delete</Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete order?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete order {o.orderReference}? This cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(o.id)} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+            {/* Payment panels for each order */}
+            {!isOrdersLoading && orders.length > 0 && (
+              <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+                <div className="p-4 border-b bg-gray-50/50">
+                  <h2 className="font-medium">Payment Details</h2>
+                  <p className="text-sm text-muted-foreground mt-0.5">Click an order to view and manage payment status and details.</p>
+                </div>
+                <div className="divide-y">
+                  {orders.map((o) => (
+                    <div key={o.id} className="px-4 py-3">
+                      <div className="text-xs text-muted-foreground font-mono mb-2">{o.orderReference} — {o.fullName}</div>
+                      <OrderPaymentPanel order={o} onUpdate={handlePaymentUpdate} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === "products" && <ProductsPricingPanel />}
+
+        {activeTab === "payment-settings" && <PaymentSettingsPanel />}
 
         {activeTab === "settings" && (
           <SocialLinksEditor />

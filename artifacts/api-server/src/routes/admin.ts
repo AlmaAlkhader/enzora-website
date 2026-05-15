@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
-import { AdminLoginBody, UpdateOrderStatusBody } from "@workspace/api-zod";
+import { AdminLoginBody, UpdateOrderStatusBody, UpdateOrderPaymentBody } from "@workspace/api-zod";
 import { db, ordersTable } from "@workspace/db";
 import {
   getAdminCredentials,
@@ -11,6 +11,15 @@ import {
 import { serializeOrder } from "../lib/orders";
 
 const router: IRouter = Router();
+
+const ALLOWED_PAYMENT_STATUSES = new Set([
+  "pending",
+  "awaiting_confirmation",
+  "paid",
+  "failed",
+  "refunded",
+  "cancelled",
+]);
 
 router.post("/admin/login", (req, res) => {
   if (!getAdminCredentials()) {
@@ -149,6 +158,69 @@ router.patch("/admin/orders/:id", requireAdmin, async (req, res) => {
     res.status(404).json({ error: "Not found" });
     return;
   }
+  res.json(serializeOrder(row));
+});
+
+router.patch("/admin/orders/:id/payment", requireAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const parsed = UpdateOrderPaymentBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid payment input", details: parsed.error.issues });
+    return;
+  }
+
+  const update: Record<string, unknown> = {};
+
+  if (parsed.data.paymentStatus !== undefined) {
+    const newStatus = parsed.data.paymentStatus;
+    if (!ALLOWED_PAYMENT_STATUSES.has(newStatus)) {
+      res.status(400).json({ error: "Invalid payment status" });
+      return;
+    }
+    update["paymentStatus"] = newStatus;
+    if (newStatus === "paid") {
+      update["paidAt"] = new Date();
+    } else {
+      update["paidAt"] = null;
+    }
+  }
+
+  if ("paymentNote" in parsed.data) {
+    update["paymentNote"] = parsed.data.paymentNote ?? null;
+  }
+
+  if ("paymentReference" in parsed.data) {
+    update["paymentReference"] = parsed.data.paymentReference ?? null;
+  }
+
+  if ("amountDue" in parsed.data) {
+    update["amountDue"] = parsed.data.amountDue != null ? String(parsed.data.amountDue) : null;
+  }
+
+  if (Object.keys(update).length === 0) {
+    const [existing] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+    if (!existing) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.json(serializeOrder(existing));
+    return;
+  }
+
+  const [row] = await db
+    .update(ordersTable)
+    .set(update)
+    .where(eq(ordersTable.id, id))
+    .returning();
+  if (!row) {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
+  req.log.info({ id, update }, "Order payment updated");
   res.json(serializeOrder(row));
 });
 

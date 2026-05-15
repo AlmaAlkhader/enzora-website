@@ -35,8 +35,44 @@ export const CreateOrderBody = zod.object({
   "customerType": zod.enum(['patient', 'caregiver', 'clinic', 'hospital', 'research', 'other']),
   "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "quantity": zod.number().min(1),
-  "message": zod.string().optional()
+  "message": zod.string().optional(),
+  "paymentMethod": zod.enum(['cash_on_delivery', 'cash_on_pickup', 'bank_transfer', 'mobile_wallet', 'contact_us'])
 })
+
+
+/**
+ * @summary Track an order by reference number (public, safe fields only)
+ */
+export const TrackOrderQueryParams = zod.object({
+  "ref": zod.coerce.string()
+})
+
+export const TrackOrderResponse = zod.object({
+  "id": zod.number(),
+  "orderReference": zod.string(),
+  "productNameSnapshot": zod.string().nullable(),
+  "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
+  "quantity": zod.number(),
+  "status": zod.enum(['new', 'contacted', 'confirmed', 'completed', 'rejected']),
+  "paymentMethod": zod.enum(['cash_on_delivery', 'cash_on_pickup', 'bank_transfer', 'mobile_wallet', 'contact_us']).nullable(),
+  "paymentStatus": zod.enum(['pending', 'awaiting_confirmation', 'paid', 'failed', 'refunded', 'cancelled']),
+  "amountDue": zod.number().nullish(),
+  "currency": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List active payment methods (public)
+ */
+export const ListPaymentMethodsResponseItem = zod.object({
+  "methodKey": zod.enum(['cash_on_delivery', 'cash_on_pickup', 'bank_transfer', 'mobile_wallet', 'contact_us']),
+  "nameEn": zod.string(),
+  "nameAr": zod.string(),
+  "instructionsEn": zod.string(),
+  "instructionsAr": zod.string()
+})
+export const ListPaymentMethodsResponse = zod.array(ListPaymentMethodsResponseItem)
 
 
 /**
@@ -156,6 +192,48 @@ export const AdminUpdateProductResponse = zod.object({
 
 
 /**
+ * @summary List all payment methods (admin)
+ */
+export const AdminListPaymentMethodsResponseItem = zod.object({
+  "methodKey": zod.enum(['cash_on_delivery', 'cash_on_pickup', 'bank_transfer', 'mobile_wallet', 'contact_us']),
+  "nameEn": zod.string(),
+  "nameAr": zod.string(),
+  "instructionsEn": zod.string(),
+  "instructionsAr": zod.string(),
+  "isActive": zod.boolean()
+})
+export const AdminListPaymentMethodsResponse = zod.array(AdminListPaymentMethodsResponseItem)
+
+
+/**
+ * @summary Update payment method settings (active flag and instructions)
+ */
+
+
+
+
+export const AdminUpdatePaymentMethodsBodyItem = zod.object({
+  "methodKey": zod.enum(['cash_on_delivery', 'cash_on_pickup', 'bank_transfer', 'mobile_wallet', 'contact_us']),
+  "nameEn": zod.string().min(1),
+  "nameAr": zod.string().min(1),
+  "instructionsEn": zod.string(),
+  "instructionsAr": zod.string(),
+  "isActive": zod.boolean()
+})
+export const AdminUpdatePaymentMethodsBody = zod.array(AdminUpdatePaymentMethodsBodyItem)
+
+export const AdminUpdatePaymentMethodsResponseItem = zod.object({
+  "methodKey": zod.enum(['cash_on_delivery', 'cash_on_pickup', 'bank_transfer', 'mobile_wallet', 'contact_us']),
+  "nameEn": zod.string(),
+  "nameAr": zod.string(),
+  "instructionsEn": zod.string(),
+  "instructionsAr": zod.string(),
+  "isActive": zod.boolean()
+})
+export const AdminUpdatePaymentMethodsResponse = zod.array(AdminUpdatePaymentMethodsResponseItem)
+
+
+/**
  * @summary List orders (admin)
  */
 export const ListOrdersQueryParams = zod.object({
@@ -181,6 +259,13 @@ export const ListOrdersResponseItem = zod.object({
   "totalEstimatedPrice": zod.number().nullish(),
   "message": zod.string().nullish(),
   "status": zod.enum(['new', 'contacted', 'confirmed', 'completed', 'rejected']),
+  "paymentMethod": zod.enum(['cash_on_delivery', 'cash_on_pickup', 'bank_transfer', 'mobile_wallet', 'contact_us']).nullish(),
+  "paymentStatus": zod.enum(['pending', 'awaiting_confirmation', 'paid', 'failed', 'refunded', 'cancelled']),
+  "paymentNote": zod.string().nullish(),
+  "paymentReference": zod.string().nullish(),
+  "amountDue": zod.number().nullish(),
+  "currency": zod.string(),
+  "paidAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date()
 })
 export const ListOrdersResponse = zod.array(ListOrdersResponseItem)
@@ -216,6 +301,13 @@ export const GetOrdersSummaryResponse = zod.object({
   "totalEstimatedPrice": zod.number().nullish(),
   "message": zod.string().nullish(),
   "status": zod.enum(['new', 'contacted', 'confirmed', 'completed', 'rejected']),
+  "paymentMethod": zod.enum(['cash_on_delivery', 'cash_on_pickup', 'bank_transfer', 'mobile_wallet', 'contact_us']).nullish(),
+  "paymentStatus": zod.enum(['pending', 'awaiting_confirmation', 'paid', 'failed', 'refunded', 'cancelled']),
+  "paymentNote": zod.string().nullish(),
+  "paymentReference": zod.string().nullish(),
+  "amountDue": zod.number().nullish(),
+  "currency": zod.string(),
+  "paidAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date()
 }))
 })
@@ -246,6 +338,13 @@ export const GetOrderResponse = zod.object({
   "totalEstimatedPrice": zod.number().nullish(),
   "message": zod.string().nullish(),
   "status": zod.enum(['new', 'contacted', 'confirmed', 'completed', 'rejected']),
+  "paymentMethod": zod.enum(['cash_on_delivery', 'cash_on_pickup', 'bank_transfer', 'mobile_wallet', 'contact_us']).nullish(),
+  "paymentStatus": zod.enum(['pending', 'awaiting_confirmation', 'paid', 'failed', 'refunded', 'cancelled']),
+  "paymentNote": zod.string().nullish(),
+  "paymentReference": zod.string().nullish(),
+  "amountDue": zod.number().nullish(),
+  "currency": zod.string(),
+  "paidAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date()
 })
 
@@ -279,6 +378,13 @@ export const UpdateOrderStatusResponse = zod.object({
   "totalEstimatedPrice": zod.number().nullish(),
   "message": zod.string().nullish(),
   "status": zod.enum(['new', 'contacted', 'confirmed', 'completed', 'rejected']),
+  "paymentMethod": zod.enum(['cash_on_delivery', 'cash_on_pickup', 'bank_transfer', 'mobile_wallet', 'contact_us']).nullish(),
+  "paymentStatus": zod.enum(['pending', 'awaiting_confirmation', 'paid', 'failed', 'refunded', 'cancelled']),
+  "paymentNote": zod.string().nullish(),
+  "paymentReference": zod.string().nullish(),
+  "amountDue": zod.number().nullish(),
+  "currency": zod.string(),
+  "paidAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date()
 })
 
@@ -288,6 +394,49 @@ export const UpdateOrderStatusResponse = zod.object({
  */
 export const DeleteOrderParams = zod.object({
   "id": zod.coerce.number()
+})
+
+
+/**
+ * @summary Update order payment status and details
+ */
+export const UpdateOrderPaymentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateOrderPaymentBody = zod.object({
+  "paymentStatus": zod.enum(['pending', 'awaiting_confirmation', 'paid', 'failed', 'refunded', 'cancelled']).optional(),
+  "paymentNote": zod.string().nullish(),
+  "paymentReference": zod.string().nullish(),
+  "amountDue": zod.number().nullish()
+})
+
+export const UpdateOrderPaymentResponse = zod.object({
+  "id": zod.number(),
+  "orderReference": zod.string(),
+  "fullName": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string(),
+  "countryCity": zod.string(),
+  "country": zod.string().nullish(),
+  "city": zod.string().nullish(),
+  "customerType": zod.enum(['patient', 'caregiver', 'clinic', 'hospital', 'research', 'other']),
+  "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
+  "quantity": zod.number(),
+  "productNameSnapshot": zod.string().nullish(),
+  "productPriceSnapshot": zod.number().nullish(),
+  "productCurrencySnapshot": zod.string().nullish(),
+  "totalEstimatedPrice": zod.number().nullish(),
+  "message": zod.string().nullish(),
+  "status": zod.enum(['new', 'contacted', 'confirmed', 'completed', 'rejected']),
+  "paymentMethod": zod.enum(['cash_on_delivery', 'cash_on_pickup', 'bank_transfer', 'mobile_wallet', 'contact_us']).nullish(),
+  "paymentStatus": zod.enum(['pending', 'awaiting_confirmation', 'paid', 'failed', 'refunded', 'cancelled']),
+  "paymentNote": zod.string().nullish(),
+  "paymentReference": zod.string().nullish(),
+  "amountDue": zod.number().nullish(),
+  "currency": zod.string(),
+  "paidAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
 })
 
 

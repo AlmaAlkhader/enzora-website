@@ -22,18 +22,25 @@ import type {
 import type {
   AdminLoginInput,
   AdminMe,
+  AdminPaymentMethod,
   AdminProduct,
   AdminSession,
   CreateOrderInput,
+  ErrorResponse,
   HealthStatus,
   ListOrdersParams,
   Order,
   OrderConfirmation,
+  OrderTrackingResult,
   OrdersSummary,
+  PaymentMethodPublic,
   Product,
   SocialLinks,
   SocialLinksInput,
+  TrackOrderParams,
+  UpdateOrderPaymentInput,
   UpdateOrderStatusInput,
+  UpdatePaymentMethodInput,
   UpdateProductInput
 } from './api.schemas';
 
@@ -196,6 +203,167 @@ export const useCreateOrder = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getCreateOrderMutationOptions(options));
     }
+
+export const getTrackOrderUrl = (params: TrackOrderParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/orders/track?${stringifiedParams}` : `/api/orders/track`
+}
+
+/**
+ * @summary Track an order by reference number (public, safe fields only)
+ */
+export const trackOrder = async (params: TrackOrderParams, options?: RequestInit): Promise<OrderTrackingResult> => {
+
+  return customFetch<OrderTrackingResult>(getTrackOrderUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getTrackOrderQueryKey = (params?: TrackOrderParams,) => {
+    return [
+    `/api/orders/track`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getTrackOrderQueryOptions = <TData = Awaited<ReturnType<typeof trackOrder>>, TError = ErrorType<ErrorResponse>>(params: TrackOrderParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof trackOrder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getTrackOrderQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof trackOrder>>> = ({ signal }) => trackOrder(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof trackOrder>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type TrackOrderQueryResult = NonNullable<Awaited<ReturnType<typeof trackOrder>>>
+export type TrackOrderQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Track an order by reference number (public, safe fields only)
+ */
+
+export function useTrackOrder<TData = Awaited<ReturnType<typeof trackOrder>>, TError = ErrorType<ErrorResponse>>(
+ params: TrackOrderParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof trackOrder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getTrackOrderQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListPaymentMethodsUrl = () => {
+
+
+
+
+  return `/api/payment-methods`
+}
+
+/**
+ * @summary List active payment methods (public)
+ */
+export const listPaymentMethods = async ( options?: RequestInit): Promise<PaymentMethodPublic[]> => {
+
+  return customFetch<PaymentMethodPublic[]>(getListPaymentMethodsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPaymentMethodsQueryKey = () => {
+    return [
+    `/api/payment-methods`
+    ] as const;
+    }
+
+
+export const getListPaymentMethodsQueryOptions = <TData = Awaited<ReturnType<typeof listPaymentMethods>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPaymentMethods>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPaymentMethodsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPaymentMethods>>> = ({ signal }) => listPaymentMethods({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPaymentMethods>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListPaymentMethodsQueryResult = NonNullable<Awaited<ReturnType<typeof listPaymentMethods>>>
+export type ListPaymentMethodsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List active payment methods (public)
+ */
+
+export function useListPaymentMethods<TData = Awaited<ReturnType<typeof listPaymentMethods>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPaymentMethods>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListPaymentMethodsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getListProductsUrl = () => {
 
@@ -719,6 +887,154 @@ export const useAdminUpdateProduct = <TError = ErrorType<unknown>,
       return useMutation(getAdminUpdateProductMutationOptions(options));
     }
 
+export const getAdminListPaymentMethodsUrl = () => {
+
+
+
+
+  return `/api/admin/payment-methods`
+}
+
+/**
+ * @summary List all payment methods (admin)
+ */
+export const adminListPaymentMethods = async ( options?: RequestInit): Promise<AdminPaymentMethod[]> => {
+
+  return customFetch<AdminPaymentMethod[]>(getAdminListPaymentMethodsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminListPaymentMethodsQueryKey = () => {
+    return [
+    `/api/admin/payment-methods`
+    ] as const;
+    }
+
+
+export const getAdminListPaymentMethodsQueryOptions = <TData = Awaited<ReturnType<typeof adminListPaymentMethods>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListPaymentMethods>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminListPaymentMethodsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListPaymentMethods>>> = ({ signal }) => adminListPaymentMethods({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListPaymentMethods>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminListPaymentMethodsQueryResult = NonNullable<Awaited<ReturnType<typeof adminListPaymentMethods>>>
+export type AdminListPaymentMethodsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all payment methods (admin)
+ */
+
+export function useAdminListPaymentMethods<TData = Awaited<ReturnType<typeof adminListPaymentMethods>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListPaymentMethods>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminListPaymentMethodsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAdminUpdatePaymentMethodsUrl = () => {
+
+
+
+
+  return `/api/admin/payment-methods`
+}
+
+/**
+ * @summary Update payment method settings (active flag and instructions)
+ */
+export const adminUpdatePaymentMethods = async (updatePaymentMethodInput: UpdatePaymentMethodInput[], options?: RequestInit): Promise<AdminPaymentMethod[]> => {
+
+  return customFetch<AdminPaymentMethod[]>(getAdminUpdatePaymentMethodsUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updatePaymentMethodInput,)
+  }
+);}
+
+
+
+
+export const getAdminUpdatePaymentMethodsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdatePaymentMethods>>, TError,{data: BodyType<UpdatePaymentMethodInput[]>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminUpdatePaymentMethods>>, TError,{data: BodyType<UpdatePaymentMethodInput[]>}, TContext> => {
+
+const mutationKey = ['adminUpdatePaymentMethods'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminUpdatePaymentMethods>>, {data: BodyType<UpdatePaymentMethodInput[]>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  adminUpdatePaymentMethods(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminUpdatePaymentMethodsMutationResult = NonNullable<Awaited<ReturnType<typeof adminUpdatePaymentMethods>>>
+    export type AdminUpdatePaymentMethodsMutationBody = BodyType<UpdatePaymentMethodInput[]>
+    export type AdminUpdatePaymentMethodsMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update payment method settings (active flag and instructions)
+ */
+export const useAdminUpdatePaymentMethods = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminUpdatePaymentMethods>>, TError,{data: BodyType<UpdatePaymentMethodInput[]>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminUpdatePaymentMethods>>,
+        TError,
+        {data: BodyType<UpdatePaymentMethodInput[]>},
+        TContext
+      > => {
+      return useMutation(getAdminUpdatePaymentMethodsMutationOptions(options));
+    }
+
 export const getListOrdersUrl = (params?: ListOrdersParams,) => {
   const normalizedParams = new URLSearchParams();
 
@@ -1097,5 +1413,77 @@ export const useDeleteOrder = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getDeleteOrderMutationOptions(options));
+    }
+
+export const getUpdateOrderPaymentUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/orders/${id}/payment`
+}
+
+/**
+ * @summary Update order payment status and details
+ */
+export const updateOrderPayment = async (id: number,
+    updateOrderPaymentInput: UpdateOrderPaymentInput, options?: RequestInit): Promise<Order> => {
+
+  return customFetch<Order>(getUpdateOrderPaymentUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateOrderPaymentInput,)
+  }
+);}
+
+
+
+
+export const getUpdateOrderPaymentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateOrderPayment>>, TError,{id: number;data: BodyType<UpdateOrderPaymentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateOrderPayment>>, TError,{id: number;data: BodyType<UpdateOrderPaymentInput>}, TContext> => {
+
+const mutationKey = ['updateOrderPayment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateOrderPayment>>, {id: number;data: BodyType<UpdateOrderPaymentInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateOrderPayment(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateOrderPaymentMutationResult = NonNullable<Awaited<ReturnType<typeof updateOrderPayment>>>
+    export type UpdateOrderPaymentMutationBody = BodyType<UpdateOrderPaymentInput>
+    export type UpdateOrderPaymentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update order payment status and details
+ */
+export const useUpdateOrderPayment = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateOrderPayment>>, TError,{id: number;data: BodyType<UpdateOrderPaymentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateOrderPayment>>,
+        TError,
+        {id: number;data: BodyType<UpdateOrderPaymentInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateOrderPaymentMutationOptions(options));
     }
 
