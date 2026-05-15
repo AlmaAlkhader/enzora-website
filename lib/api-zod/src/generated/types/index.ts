@@ -26,6 +26,7 @@ export * from './paymentMethodKey';
 export * from './paymentMethodPublic';
 export * from './paymentStatus';
 export * from './product';
+export * from './productDimension';
 export * from './productSelection';
 export * from './socialLinks';
 export * from './socialLinksInput';

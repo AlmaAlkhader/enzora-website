@@ -5,6 +5,7 @@
  * Enzora API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ProductDimension } from './productDimension';
 import type { ProductSelection } from './productSelection';
 
 export interface AdminProduct {
@@ -16,4 +17,5 @@ export interface AdminProduct {
   priceLabel?: string | null;
   displayText: string;
   isActive: boolean;
+  dimensions: ProductDimension[];
 }

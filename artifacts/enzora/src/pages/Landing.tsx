@@ -185,6 +185,16 @@ export default function Landing() {
     return map;
   }, [liveProducts]);
 
+  const productDimensions = useMemo(() => {
+    const map: Partial<Record<typeof ProductSelection[keyof typeof ProductSelection], { label: string; value: string }[]>> = {};
+    for (const p of liveProducts ?? []) {
+      if (p.dimensions && p.dimensions.length > 0) {
+        map[p.productKey] = p.dimensions;
+      }
+    }
+    return map;
+  }, [liveProducts]);
+
   const orderFormSchema = useMemo(
     () =>
       z
@@ -586,6 +596,25 @@ export default function Landing() {
                   <p className={`text-sm leading-relaxed mb-6 ${meta.highlight ? "text-white/85" : "text-muted-foreground"}`}>
                     {meta.description}
                   </p>
+                  {productDimensions[productKey] && productDimensions[productKey]!.length > 0 && (
+                    <dl className={`grid grid-cols-2 gap-x-4 gap-y-2 mb-6 pb-5 border-b ${
+                      meta.highlight ? "border-white/15" : "border-primary/10"
+                    }`}>
+                      {productDimensions[productKey]!.map((d, i) => (
+                        <div key={`${d.label}-${i}`} className="text-sm">
+                          <dt
+                            dir="auto"
+                            className={`text-xs uppercase tracking-wide ${
+                              meta.highlight ? "text-white/60" : "text-muted-foreground"
+                            }`}
+                          >
+                            {d.label}
+                          </dt>
+                          <dd dir="auto" className="font-semibold mt-0.5">{d.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
                   <ul className="space-y-3 mb-8 flex-1">
                     {meta.features.map((f) => (
                       <li key={f} className="flex items-start gap-3 text-sm">

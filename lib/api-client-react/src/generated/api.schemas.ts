@@ -82,6 +82,13 @@ export const ProductSelection = {
   complete_package: 'complete_package',
 } as const;
 
+export interface ProductDimension {
+  /** @minLength 1 */
+  label: string;
+  /** @minLength 1 */
+  value: string;
+}
+
 export interface Product {
   productKey: ProductSelection;
   name: string;
@@ -90,6 +97,7 @@ export interface Product {
   currency: string;
   priceLabel?: string | null;
   displayText: string;
+  dimensions: ProductDimension[];
 }
 
 export interface AdminProduct {
@@ -101,6 +109,7 @@ export interface AdminProduct {
   priceLabel?: string | null;
   displayText: string;
   isActive: boolean;
+  dimensions: ProductDimension[];
 }
 
 export interface UpdateProductInput {
@@ -112,6 +121,7 @@ export interface UpdateProductInput {
   currency: string;
   priceLabel?: string | null;
   isActive: boolean;
+  dimensions?: ProductDimension[];
 }
 
 export interface PaymentMethodPublic {

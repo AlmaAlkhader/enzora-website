@@ -98,4 +98,20 @@ BEGIN
 END $$;
 `,
   },
+  {
+    name: "0004_products_dimensions.sql",
+    sql: `
+-- Migration: add dimensions column to products table
+-- Stores an admin-editable list of {label, value} pairs (e.g. Width: 40 mm).
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'products' AND column_name = 'dimensions'
+  ) THEN
+    ALTER TABLE products ADD COLUMN dimensions jsonb NOT NULL DEFAULT '[]'::jsonb;
+  END IF;
+END $$;
+`,
+  },
 ];

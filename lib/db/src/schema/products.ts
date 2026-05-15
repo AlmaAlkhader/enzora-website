@@ -1,4 +1,6 @@
-import { pgTable, serial, text, numeric, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, numeric, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+
+export type ProductDimension = { label: string; value: string };
 
 export const productsTable = pgTable("products", {
   id: serial("id").primaryKey(),
@@ -8,6 +10,7 @@ export const productsTable = pgTable("products", {
   price: numeric("price", { precision: 12, scale: 2 }),
   currency: text("currency").notNull().default("USD"),
   priceLabel: text("price_label"),
+  dimensions: jsonb("dimensions").$type<ProductDimension[]>().notNull().default([]),
   isActive: boolean("is_active").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

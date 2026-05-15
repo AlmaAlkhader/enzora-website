@@ -62,6 +62,7 @@ type EditState = {
   price: string;
   currency: string;
   priceLabel: string;
+  dimensions: { label: string; value: string }[];
 };
 
 type PaymentEditState = {
@@ -77,7 +78,7 @@ function ProductsPricingPanel() {
   const updateProduct = useAdminUpdateProduct();
 
   const [editingKey, setEditingKey] = useState<string | null>(null);
-  const [editState, setEditState] = useState<EditState>({ price: "", currency: "USD", priceLabel: "" });
+  const [editState, setEditState] = useState<EditState>({ price: "", currency: "USD", priceLabel: "", dimensions: [] });
 
   const startEdit = (p: AdminProduct) => {
     setEditingKey(p.productKey);
@@ -85,6 +86,7 @@ function ProductsPricingPanel() {
       price: p.price != null ? String(p.price) : "",
       currency: p.currency,
       priceLabel: p.priceLabel ?? "",
+      dimensions: (p.dimensions ?? []).map((d) => ({ label: d.label, value: d.value })),
     });
   };
 
@@ -92,9 +94,27 @@ function ProductsPricingPanel() {
     setEditingKey(null);
   };
 
+  const addDimensionRow = () => {
+    setEditState((s) => ({ ...s, dimensions: [...s.dimensions, { label: "", value: "" }] }));
+  };
+
+  const updateDimensionRow = (idx: number, field: "label" | "value", val: string) => {
+    setEditState((s) => ({
+      ...s,
+      dimensions: s.dimensions.map((d, i) => (i === idx ? { ...d, [field]: val } : d)),
+    }));
+  };
+
+  const removeDimensionRow = (idx: number) => {
+    setEditState((s) => ({ ...s, dimensions: s.dimensions.filter((_, i) => i !== idx) }));
+  };
+
   const savePrice = (p: AdminProduct, overrideContactUs = false) => {
     const price = overrideContactUs ? null : (editState.price.trim() !== "" ? parseFloat(editState.price) : null);
     const priceLabel = overrideContactUs ? "Contact us for pricing" : (editState.priceLabel.trim() || null);
+    const dimensions = editState.dimensions
+      .map((d) => ({ label: d.label.trim(), value: d.value.trim() }))
+      .filter((d) => d.label.length > 0 && d.value.length > 0);
 
     updateProduct.mutate(
       {
@@ -106,16 +126,17 @@ function ProductsPricingPanel() {
           currency: editState.currency.trim() || "USD",
           priceLabel,
           isActive: p.isActive,
+          dimensions,
         },
       },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getAdminListProductsQueryKey() });
-          toast({ title: "Price updated successfully." });
+          toast({ title: "Product updated successfully." });
           setEditingKey(null);
         },
         onError: () => {
-          toast({ title: "Failed to update price", variant: "destructive" });
+          toast({ title: "Failed to update product", variant: "destructive" });
         },
       },
     );
@@ -151,10 +172,23 @@ function ProductsPricingPanel() {
                     </span>
                   )}
                 </div>
+                {p.dimensions && p.dimensions.length > 0 && (
+                  <div className="mt-3">
+                    <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">Dimensions / Specs</div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1">
+                      {p.dimensions.map((d, i) => (
+                        <span key={`${d.label}-${i}`} className="text-sm">
+                          <span className="text-muted-foreground">{d.label}:</span>{" "}
+                          <span className="font-medium">{d.value}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               {editingKey !== p.productKey && (
                 <Button variant="outline" size="sm" onClick={() => startEdit(p)}>
-                  Edit Price
+                  Edit Product
                 </Button>
               )}
             </div>
@@ -194,13 +228,72 @@ function ProductsPricingPanel() {
                     <p className="text-xs text-muted-foreground">Shown when price is blank.</p>
                   </div>
                 </div>
+
+                <div className="border-t pt-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Dimensions / Specifications
+                      </label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        e.g. Width: 40 mm, Weight: 25 g, Battery life: 12 hours. Shown on the public product card.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={addDimensionRow}
+                      disabled={updateProduct.isPending}
+                    >
+                      + Add row
+                    </Button>
+                  </div>
+
+                  {editState.dimensions.length === 0 ? (
+                    <p className="text-sm text-muted-foreground italic">
+                      No dimensions yet. Click "Add row" to add one.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {editState.dimensions.map((d, idx) => (
+                        <div key={idx} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                          <Input
+                            placeholder="Label (e.g. Width)"
+                            value={d.label}
+                            onChange={(e) => updateDimensionRow(idx, "label", e.target.value)}
+                            className="h-10 sm:flex-1"
+                          />
+                          <Input
+                            placeholder="Value (e.g. 40 mm)"
+                            value={d.value}
+                            onChange={(e) => updateDimensionRow(idx, "value", e.target.value)}
+                            className="h-10 sm:flex-1"
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => removeDimensionRow(idx)}
+                            disabled={updateProduct.isPending}
+                            className="text-muted-foreground hover:text-destructive shrink-0"
+                            aria-label={`Remove row ${idx + 1}`}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex flex-wrap gap-2 pt-1">
                   <Button
                     size="sm"
                     onClick={() => savePrice(p)}
                     disabled={updateProduct.isPending}
                   >
-                    Save Price
+                    Save Changes
                   </Button>
                   <Button
                     size="sm"

@@ -82,6 +82,10 @@ export const ListPaymentMethodsResponse = zod.array(ListPaymentMethodsResponseIt
 /**
  * @summary List active products with live pricing
  */
+
+
+
+
 export const ListProductsResponseItem = zod.object({
   "productKey": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "name": zod.string(),
@@ -89,7 +93,11 @@ export const ListProductsResponseItem = zod.object({
   "price": zod.number().nullish(),
   "currency": zod.string(),
   "priceLabel": zod.string().nullish(),
-  "displayText": zod.string()
+  "displayText": zod.string(),
+  "dimensions": zod.array(zod.object({
+  "label": zod.string().min(1),
+  "value": zod.string().min(1)
+}))
 })
 export const ListProductsResponse = zod.array(ListProductsResponseItem)
 
@@ -150,6 +158,10 @@ export const AdminMeResponse = zod.object({
 /**
  * @summary List all products including inactive (admin)
  */
+
+
+
+
 export const AdminListProductsResponseItem = zod.object({
   "productKey": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "name": zod.string(),
@@ -158,7 +170,11 @@ export const AdminListProductsResponseItem = zod.object({
   "currency": zod.string(),
   "priceLabel": zod.string().nullish(),
   "displayText": zod.string(),
-  "isActive": zod.boolean()
+  "isActive": zod.boolean(),
+  "dimensions": zod.array(zod.object({
+  "label": zod.string().min(1),
+  "value": zod.string().min(1)
+}))
 })
 export const AdminListProductsResponse = zod.array(AdminListProductsResponseItem)
 
@@ -174,14 +190,24 @@ export const AdminUpdateProductParams = zod.object({
 
 
 
+
+
 export const AdminUpdateProductBody = zod.object({
   "name": zod.string().min(1),
   "description": zod.string(),
   "price": zod.number().nullish(),
   "currency": zod.string().min(1),
   "priceLabel": zod.string().nullish(),
-  "isActive": zod.boolean()
+  "isActive": zod.boolean(),
+  "dimensions": zod.array(zod.object({
+  "label": zod.string().min(1),
+  "value": zod.string().min(1)
+})).optional()
 })
+
+
+
+
 
 export const AdminUpdateProductResponse = zod.object({
   "productKey": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
@@ -191,7 +217,11 @@ export const AdminUpdateProductResponse = zod.object({
   "currency": zod.string(),
   "priceLabel": zod.string().nullish(),
   "displayText": zod.string(),
-  "isActive": zod.boolean()
+  "isActive": zod.boolean(),
+  "dimensions": zod.array(zod.object({
+  "label": zod.string().min(1),
+  "value": zod.string().min(1)
+}))
 })
 
 

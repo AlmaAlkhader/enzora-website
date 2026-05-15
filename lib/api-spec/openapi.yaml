@@ -440,9 +440,20 @@ components:
       type: string
       enum: [bandage_pack, smart_device, complete_package]
 
+    ProductDimension:
+      type: object
+      required: [label, value]
+      properties:
+        label:
+          type: string
+          minLength: 1
+        value:
+          type: string
+          minLength: 1
+
     Product:
       type: object
-      required: [productKey, name, description, currency, displayText]
+      required: [productKey, name, description, currency, displayText, dimensions]
       properties:
         productKey:
           $ref: "#/components/schemas/ProductSelection"
@@ -460,10 +471,14 @@ components:
           nullable: true
         displayText:
           type: string
+        dimensions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductDimension"
 
     AdminProduct:
       type: object
-      required: [productKey, name, description, currency, displayText, isActive]
+      required: [productKey, name, description, currency, displayText, isActive, dimensions]
       properties:
         productKey:
           $ref: "#/components/schemas/ProductSelection"
@@ -483,6 +498,10 @@ components:
           type: string
         isActive:
           type: boolean
+        dimensions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductDimension"
 
     UpdateProductInput:
       type: object
@@ -504,6 +523,10 @@ components:
           nullable: true
         isActive:
           type: boolean
+        dimensions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductDimension"
 
     PaymentMethodPublic:
       type: object

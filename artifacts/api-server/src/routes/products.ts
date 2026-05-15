@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { db, productsTable } from "@workspace/db";
-import type { ProductRow } from "@workspace/db";
+import type { ProductRow, ProductDimension } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 import { AdminUpdateProductBody } from "@workspace/api-zod";
 
@@ -36,6 +36,7 @@ function serializeProduct(row: ProductRow, includeInactive: true): {
   currency: string;
   priceLabel: string | null;
   displayText: string;
+  dimensions: ProductDimension[];
   isActive: boolean;
 };
 function serializeProduct(row: ProductRow, includeInactive?: false): {
@@ -46,6 +47,7 @@ function serializeProduct(row: ProductRow, includeInactive?: false): {
   currency: string;
   priceLabel: string | null;
   displayText: string;
+  dimensions: ProductDimension[];
 };
 function serializeProduct(row: ProductRow, includeInactive = false) {
   const base = {
@@ -56,6 +58,7 @@ function serializeProduct(row: ProductRow, includeInactive = false) {
     currency: row.currency,
     priceLabel: row.priceLabel ?? null,
     displayText: computeDisplayText(row),
+    dimensions: Array.isArray(row.dimensions) ? row.dimensions : [],
   };
   if (includeInactive) {
     return { ...base, isActive: row.isActive };
@@ -89,19 +92,32 @@ router.put("/admin/products/:product_key", requireAdmin, async (req, res) => {
     return;
   }
 
-  const { name, description, price, currency, priceLabel, isActive } = parsed.data;
+  const { name, description, price, currency, priceLabel, isActive, dimensions } = parsed.data;
+
+  const updateValues: Record<string, unknown> = {
+    name,
+    description,
+    price: price != null ? String(price) : null,
+    currency,
+    priceLabel: priceLabel ?? null,
+    isActive,
+    updatedAt: new Date(),
+  };
+
+  // Only overwrite dimensions when the client explicitly sends the field.
+  // Omitting dimensions preserves the existing saved value.
+  if (dimensions !== undefined) {
+    const cleanDimensions: ProductDimension[] = Array.isArray(dimensions)
+      ? dimensions
+          .map((d) => ({ label: String(d.label ?? "").trim(), value: String(d.value ?? "").trim() }))
+          .filter((d) => d.label.length > 0 && d.value.length > 0)
+      : [];
+    updateValues["dimensions"] = cleanDimensions;
+  }
 
   const [row] = await db
     .update(productsTable)
-    .set({
-      name,
-      description,
-      price: price != null ? String(price) : null,
-      currency,
-      priceLabel: priceLabel ?? null,
-      isActive,
-      updatedAt: new Date(),
-    })
+    .set(updateValues)
     .where(eq(productsTable.productKey, productKey))
     .returning();
 
