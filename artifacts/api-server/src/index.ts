@@ -23,6 +23,18 @@ async function main() {
     logger.info({ applied }, "Applied database migrations");
   }
 
+  // Migration-only mode: used by the production deploy command to run the
+  // raw-SQL migrator (which safely handles renames and other destructive
+  // changes) BEFORE `drizzle-kit push` is invoked. Once migrations are
+  // applied, exit so the deploy script can run the schema sync against the
+  // already-migrated DB and then start the server normally.
+  if (process.env["MIGRATE_ONLY"] === "1") {
+    logger.info("MIGRATE_ONLY=1 set; exiting after migrations");
+    return;
+  }
+
+  await seedProducts();
+
   app.listen(port, (err) => {
     if (err) {
       logger.error({ err }, "Error listening on port");
@@ -30,10 +42,6 @@ async function main() {
     }
 
     logger.info({ port }, "Server listening");
-
-    seedProducts().catch((seedErr) => {
-      logger.error({ err: seedErr }, "Failed to seed products");
-    });
   });
 }
 
