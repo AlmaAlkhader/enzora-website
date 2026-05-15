@@ -8,13 +8,22 @@ import Landing from "@/pages/Landing";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import OrderTracking from "@/pages/OrderTracking";
+import { LanguageProvider } from "@/lib/language-context";
 
 const queryClient = new QueryClient();
+
+function PublicLanding() {
+  return (
+    <LanguageProvider>
+      <Landing />
+    </LanguageProvider>
+  );
+}
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Landing} />
+      <Route path="/" component={PublicLanding} />
       <Route path="/track" component={OrderTracking} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminDashboard} />
