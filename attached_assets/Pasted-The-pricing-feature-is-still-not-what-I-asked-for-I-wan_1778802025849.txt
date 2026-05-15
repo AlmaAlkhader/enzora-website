@@ -1,0 +1,154 @@
+The pricing feature is still not what I asked for.
+
+I want the admin to have real buttons/forms in the admin dashboard to manually change product prices, and I want those changed prices to immediately appear for customers on the public website.
+
+This must NOT be hardcoded.
+
+Required behavior:
+
+1. In the admin dashboard, add a tab/page called “Products & Pricing”.
+
+2. Show the three Enzora products:
+
+Product 1:
+Enzora Bandage Pack
+Default price: 20
+Currency: USD
+Description: 5 bandages included
+
+Product 2:
+Enzora Smart Device
+Default price: empty/null
+Display text if no price: Contact us for pricing
+
+Product 3:
+Complete Enzora Package
+Default price: empty/null
+Display text if no price: Contact us for pricing
+
+3. For each product, admin must see:
+- Product name
+- Current price
+- Currency
+- Current public display text
+- Edit Price button
+
+4. When admin clicks “Edit Price”, show editable fields:
+- Price
+- Currency
+- Price display label
+
+5. Add buttons:
+- Save Price
+- Cancel
+- Set as “Contact us for pricing”
+
+6. When admin saves the price:
+- Save the new price in the Replit PostgreSQL database.
+- Show success message: “Price updated successfully.”
+- Update the public website product cards automatically.
+- Update the order form product dropdown automatically.
+
+7. Customer-facing website must read prices from the database.
+
+This means:
+If admin changes Enzora Bandage Pack from $20 to $25, customers should immediately see $25 on:
+- Product cards
+- Pricing/product section
+- Order form dropdown
+- Any product summary
+
+If admin changes Smart Device from “Contact us” to $60, customers should see $60.
+
+If admin clicks “Set as Contact us for pricing,” customers should see:
+“Contact us for pricing”
+
+8. Database requirement:
+Create a products table if it does not exist.
+
+Table fields:
+- id
+- product_key
+- name
+- description
+- price
+- currency
+- price_label
+- is_active
+- updated_at
+
+Use these product_key values:
+- bandage_pack
+- smart_device
+- complete_package
+
+Seed the database with these default products if they do not already exist.
+
+9. Public API requirement:
+Create an API route that public pages can use to read product prices.
+
+Example:
+GET /api/products
+
+This should return active products and their latest prices.
+
+10. Admin API requirement:
+Create protected API routes for admin price updates.
+
+Example:
+PUT /api/admin/products/:product_key
+
+Only logged-in admins can update prices.
+
+11. Order form requirement:
+The order form dropdown must load products from the database, not from hardcoded text.
+
+Dropdown examples:
+- Enzora Bandage Pack - 5 bandages - $20
+- Enzora Smart Device - Contact us for pricing
+- Complete Enzora Package - Device + bandage pack - Contact us for pricing
+
+If admin changes prices, these dropdown labels must change automatically.
+
+12. Order saving requirement:
+When a customer submits an order, save the product price at that exact time.
+
+Add these fields to orders:
+- product_key
+- product_name_snapshot
+- product_price_snapshot
+- product_currency_snapshot
+- quantity
+- total_estimated_price
+
+This is important because if the admin changes prices later, old orders should keep the price that was shown when the customer ordered.
+
+13. Admin orders table:
+Show:
+- Product name
+- Quantity
+- Price at time of order
+- Estimated total price
+- Current status
+
+14. Important:
+Do not just add text saying prices can be changed.
+I need actual working admin buttons connected to the database.
+
+Do not hardcode prices only in the frontend.
+Do not make the customer prices separate from admin prices.
+Admin price changes must control customer-visible prices.
+
+15. Test it:
+After implementation, test this exact flow:
+- Admin logs in
+- Admin opens Products & Pricing
+- Admin changes Bandage Pack price from $20 to $25
+- Admin saves
+- Public product section shows $25
+- Public order form dropdown shows $25
+- Customer submits order
+- Admin orders table shows the order with $25 price snapshot
+
+Final result:
+The admin dashboard must let me manually change Enzora product prices using buttons/forms, and the changed prices must automatically appear for customers on the website.
