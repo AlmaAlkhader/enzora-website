@@ -10,6 +10,7 @@ const en = {
     partners: "Partners",
     faq: "FAQ",
     orderNow: "Order Now",
+    trackOrder: "Track Order",
     followEnzora: "Follow Enzora",
   },
   hero: {
@@ -136,6 +137,7 @@ const en = {
     successBodyNoAmount: (ref: string) =>
       `Your order ${ref} has been submitted. Our team will contact you soon to confirm pricing and arrange payment.`,
     successRef: "Ref:",
+    successTrackBtn: "Track My Order",
     submitAnother: "Submit another request",
     paymentMethod: "Payment Method",
     paymentMethodsUnavailable: "Payment methods are not available right now.",
@@ -246,6 +248,7 @@ const en = {
     tagline:
       "Smarter wound monitoring with a color-guided bandage and connected device — bringing clarity and calm to recovery at home.",
     quickLinks: "Quick Links",
+    trackOrder: "Track Order",
     contact: "Contact",
     followEnzora: "Follow Enzora",
     studentStartup: "A student-founded medical technology startup from Birzeit University.",
@@ -282,6 +285,7 @@ const ar: Translations = {
     partners: "الشراكات",
     faq: "الأسئلة الشائعة",
     orderNow: "اطلب الآن",
+    trackOrder: "تتبع الطلب",
     followEnzora: "تابع إنزورا",
   },
   hero: {
@@ -408,6 +412,7 @@ const ar: Translations = {
     successBodyNoAmount: (ref: string) =>
       `تم تقديم طلبك ${ref} بنجاح. سيتواصل معك فريقنا قريباً لتأكيد التسعير وترتيب الدفع.`,
     successRef: "المرجع:",
+    successTrackBtn: "تتبع طلبي",
     submitAnother: "إرسال طلب آخر",
     paymentMethod: "طريقة الدفع",
     paymentMethodsUnavailable: "طرق الدفع غير متاحة حالياً.",
@@ -518,6 +523,7 @@ const ar: Translations = {
     tagline:
       "مراقبة أذكى للجروح مع ضمادة موجَّهة بالألوان وجهاز متصل — لإضفاء الوضوح والطمأنينة على التعافي في المنزل.",
     quickLinks: "روابط سريعة",
+    trackOrder: "تتبع الطلب",
     contact: "التواصل",
     followEnzora: "تابع إنزورا",
     studentStartup: "شركة ناشئة في مجال التكنولوجيا الطبية أسسها طلاب من جامعة بيرزيت.",

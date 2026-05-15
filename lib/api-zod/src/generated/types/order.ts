@@ -10,6 +10,7 @@ import type { OrderStatus } from './orderStatus';
 import type { PaymentMethodKey } from './paymentMethodKey';
 import type { PaymentStatus } from './paymentStatus';
 import type { ProductSelection } from './productSelection';
+import type { TrackingStage } from './trackingStage';
 
 export interface Order {
   id: number;
@@ -29,6 +30,9 @@ export interface Order {
   totalEstimatedPrice?: number | null;
   message?: string | null;
   status: OrderStatus;
+  trackingStage: TrackingStage;
+  trackingLocation?: string | null;
+  trackingNote?: string | null;
   paymentMethod?: PaymentMethodKey | null;
   paymentStatus: PaymentStatus;
   paymentNote?: string | null;
@@ -37,4 +41,5 @@ export interface Order {
   currency: string;
   paidAt?: Date | null;
   createdAt: Date;
+  updatedAt: Date;
 }

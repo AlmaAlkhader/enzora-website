@@ -9,6 +9,7 @@ import {
   useUpdateOrderStatus,
   useDeleteOrder,
   useUpdateOrderPayment,
+  useUpdateOrderTracking,
   getListOrdersQueryKey,
   getGetOrdersSummaryQueryKey,
   useAdminListProducts,
@@ -20,6 +21,7 @@ import {
   PaymentMethodKey,
   PaymentStatus,
   OrderStatus,
+  TrackingStage,
   type AdminProduct,
   type Order,
   type AdminPaymentMethod,
@@ -560,6 +562,179 @@ function OrderPaymentPanel({ order, onUpdate }: { order: Order; onUpdate: () => 
   );
 }
 
+const TRACKING_STAGE_LABELS: Record<string, string> = {
+  order_submitted: "Order Submitted",
+  order_reviewed: "Order Reviewed",
+  customer_contacted: "Customer Contacted",
+  confirmed: "Confirmed",
+  preparing_order: "Preparing Order",
+  ready_for_pickup: "Ready for Pickup",
+  completed: "Completed",
+  rejected: "Rejected",
+};
+
+const QUICK_ACTION_STAGES: { label: string; stage: TrackingStage; note: string }[] = [
+  { label: "Contacted", stage: "customer_contacted", note: "We have reviewed your order and reached out to confirm details." },
+  { label: "Confirmed", stage: "confirmed", note: "Your order has been confirmed. We are preparing it for you." },
+  { label: "Preparing", stage: "preparing_order", note: "Your order is being prepared and will be ready soon." },
+  { label: "Ready", stage: "ready_for_pickup", note: "Your order is ready for pickup or delivery." },
+  { label: "Completed", stage: "completed", note: "Your order has been completed. Thank you for choosing Enzora!" },
+  { label: "Rejected", stage: "rejected", note: "We were unable to process your order. Please contact us for more information." },
+];
+
+function OrderTrackingPanel({ order, onUpdate }: { order: Order; onUpdate: () => void }) {
+  const { toast } = useToast();
+  const updateTracking = useUpdateOrderTracking();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [trackingNote, setTrackingNote] = useState(order.trackingNote ?? "");
+  const [trackingLocation, setTrackingLocation] = useState(order.trackingLocation ?? "");
+  const [selectedStage, setSelectedStage] = useState<TrackingStage>(order.trackingStage);
+
+  const handleQuickAction = (stage: TrackingStage, note: string) => {
+    updateTracking.mutate(
+      { id: order.id, data: { trackingStage: stage, trackingNote: note } },
+      {
+        onSuccess: () => {
+          toast({ title: `Stage updated to: ${TRACKING_STAGE_LABELS[stage]}` });
+          onUpdate();
+        },
+        onError: () => {
+          toast({ title: "Failed to update tracking", variant: "destructive" });
+        },
+      },
+    );
+  };
+
+  const handleSave = () => {
+    updateTracking.mutate(
+      {
+        id: order.id,
+        data: {
+          trackingStage: selectedStage,
+          trackingNote: trackingNote.trim() || null,
+          trackingLocation: trackingLocation.trim() || null,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast({ title: "Tracking details saved" });
+          onUpdate();
+        },
+        onError: () => {
+          toast({ title: "Failed to save tracking details", variant: "destructive" });
+        },
+      },
+    );
+  };
+
+  const stageColor: Record<string, string> = {
+    order_submitted: "bg-gray-100 text-gray-700",
+    order_reviewed: "bg-blue-50 text-blue-700",
+    customer_contacted: "bg-indigo-50 text-indigo-700",
+    confirmed: "bg-violet-50 text-violet-700",
+    preparing_order: "bg-amber-50 text-amber-700",
+    ready_for_pickup: "bg-orange-50 text-orange-700",
+    completed: "bg-green-100 text-green-700",
+    rejected: "bg-red-50 text-red-700",
+  };
+
+  return (
+    <div className="border rounded-lg bg-gray-50/50 overflow-hidden">
+      <button
+        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-gray-100/50 transition-colors"
+        onClick={() => setIsExpanded((v) => !v)}
+      >
+        <span className="flex items-center gap-2">
+          Tracking
+          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${stageColor[order.trackingStage] ?? "bg-gray-100 text-gray-600"}`}>
+            {TRACKING_STAGE_LABELS[order.trackingStage] ?? order.trackingStage}
+          </span>
+        </span>
+        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      </button>
+
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-4 border-t bg-white">
+          <div className="pt-3 flex items-center justify-between">
+            <div className="text-xs text-muted-foreground">
+              <span className="font-medium">Last updated:</span>{" "}
+              {new Date(order.updatedAt).toLocaleString("en", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Quick Actions</div>
+            <div className="flex flex-wrap gap-2">
+              {QUICK_ACTION_STAGES.map(({ label, stage, note }) => (
+                <Button
+                  key={stage}
+                  size="sm"
+                  variant={order.trackingStage === stage ? "default" : "outline"}
+                  className="h-7 text-xs"
+                  disabled={updateTracking.isPending || order.trackingStage === stage}
+                  onClick={() => handleQuickAction(stage, note)}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Custom Update</div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Stage</label>
+              <Select
+                value={selectedStage}
+                onValueChange={(v) => setSelectedStage(v as TrackingStage)}
+              >
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(Object.entries(TRACKING_STAGE_LABELS) as [TrackingStage, string][]).map(([s, label]) => (
+                    <SelectItem key={s} value={s}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Customer-facing Note</label>
+              <Input
+                placeholder="Update message shown to customer..."
+                value={trackingNote}
+                onChange={(e) => setTrackingNote(e.target.value)}
+                className="h-9 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Location (optional)</label>
+              <Input
+                placeholder="e.g. Ramallah warehouse"
+                value={trackingLocation}
+                onChange={(e) => setTrackingLocation(e.target.value)}
+                className="h-9 text-sm"
+              />
+            </div>
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={updateTracking.isPending}
+            >
+              Save Tracking
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
@@ -633,6 +808,10 @@ export default function AdminDashboard() {
   };
 
   const handlePaymentUpdate = () => {
+    queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey(params) });
+  };
+
+  const handleTrackingUpdate = () => {
     queryClient.invalidateQueries({ queryKey: getListOrdersQueryKey(params) });
   };
 
@@ -839,6 +1018,24 @@ export default function AdminDashboard() {
                     <div key={o.id} className="px-4 py-3">
                       <div className="text-xs text-muted-foreground font-mono mb-2">{o.orderReference} — {o.fullName}</div>
                       <OrderPaymentPanel order={o} onUpdate={handlePaymentUpdate} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Tracking panels for each order */}
+            {!isOrdersLoading && orders.length > 0 && (
+              <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+                <div className="p-4 border-b bg-gray-50/50">
+                  <h2 className="font-medium">Order Tracking</h2>
+                  <p className="text-sm text-muted-foreground mt-0.5">Update the customer-facing tracking stage and notes for each order.</p>
+                </div>
+                <div className="divide-y">
+                  {orders.map((o) => (
+                    <div key={o.id} className="px-4 py-3">
+                      <div className="text-xs text-muted-foreground font-mono mb-2">{o.orderReference} — {o.fullName}</div>
+                      <OrderTrackingPanel order={o} onUpdate={handleTrackingUpdate} />
                     </div>
                   ))}
                 </div>

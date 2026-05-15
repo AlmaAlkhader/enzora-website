@@ -18,6 +18,9 @@ export const ordersTable = pgTable("orders", {
   totalEstimatedPrice: numeric("total_estimated_price", { precision: 14, scale: 2 }),
   message: text("message"),
   status: text("status").notNull().default("new"),
+  trackingStage: text("tracking_stage").notNull().default("order_submitted"),
+  trackingLocation: text("tracking_location"),
+  trackingNote: text("tracking_note"),
   paymentMethod: text("payment_method"),
   paymentStatus: text("payment_status").notNull().default("pending"),
   paymentNote: text("payment_note"),
@@ -26,6 +29,7 @@ export const ordersTable = pgTable("orders", {
   currency: text("currency").notNull().default("USD"),
   paidAt: timestamp("paid_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type OrderRow = typeof ordersTable.$inferSelect;

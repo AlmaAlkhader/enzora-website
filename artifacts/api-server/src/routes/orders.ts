@@ -1,49 +1,63 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
+import { z } from "zod/v4";
 import { CreateOrderBody } from "@workspace/api-zod";
 import { db, ordersTable, productsTable, paymentMethodsTable } from "@workspace/db";
 import { generateReference, serializeOrder } from "../lib/orders";
 
 const router: IRouter = Router();
 
-router.get("/orders/track", async (req, res) => {
-  const ref = typeof req.query["ref"] === "string" ? req.query["ref"].trim() : "";
-  if (!ref) {
-    res.status(400).json({ error: "ref query parameter is required" });
+const TrackOrderBody = z.object({
+  orderReference: z.string().min(1),
+  emailOrPhone: z.string().min(1),
+});
+
+router.post("/orders/track", async (req, res) => {
+  const parsed = TrackOrderBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid request" });
     return;
   }
+  const { orderReference, emailOrPhone } = parsed.data;
+  const trimmedRef = orderReference.trim().toUpperCase();
+  const trimmedInput = emailOrPhone.trim();
+
   const [row] = await db
     .select()
     .from(ordersTable)
-    .where(eq(ordersTable.orderReference, ref));
+    .where(eq(ordersTable.orderReference, trimmedRef));
+
   if (!row) {
     res.status(404).json({ error: "Order not found" });
     return;
   }
+
+  const emailMatch = row.email.toLowerCase() === trimmedInput.toLowerCase();
+  const phoneMatch =
+    row.phone.replace(/[\s\-]/g, "") === trimmedInput.replace(/[\s\-]/g, "");
+  if (!emailMatch && !phoneMatch) {
+    res.status(404).json({ error: "Order not found" });
+    return;
+  }
+
   res.json({
-    id: row.id,
     orderReference: row.orderReference,
     productNameSnapshot: row.productNameSnapshot ?? null,
     productSelection: row.productSelection as "bandage_pack" | "smart_device" | "complete_package",
     quantity: row.quantity,
     status: row.status as "new" | "contacted" | "confirmed" | "completed" | "rejected",
-    paymentMethod: (row.paymentMethod ?? null) as
-      | "cash_on_delivery"
-      | "cash_on_pickup"
-      | "bank_transfer"
-      | "mobile_wallet"
-      | "contact_us"
-      | null,
-    paymentStatus: (row.paymentStatus ?? "pending") as
-      | "pending"
-      | "awaiting_confirmation"
-      | "paid"
-      | "failed"
-      | "refunded"
-      | "cancelled",
-    amountDue: row.amountDue != null ? parseFloat(row.amountDue) : null,
-    currency: row.currency ?? "USD",
-    createdAt: row.createdAt.toISOString(),
+    trackingStage: (row.trackingStage ?? "order_submitted") as
+      | "order_submitted"
+      | "order_reviewed"
+      | "customer_contacted"
+      | "confirmed"
+      | "preparing_order"
+      | "ready_for_pickup"
+      | "completed"
+      | "rejected",
+    trackingLocation: row.trackingLocation ?? null,
+    trackingNote: row.trackingNote ?? null,
+    updatedAt: row.updatedAt.toISOString(),
   });
 });
 
@@ -93,6 +107,11 @@ router.post("/orders", async (req, res) => {
 
   const currency = productCurrencySnapshot ?? "USD";
 
+  const isArabic = (input as { language?: string }).language === "ar";
+  const defaultTrackingNote = isArabic
+    ? "تم إرسال طلبك بنجاح. سيتواصل معك فريقنا قريبًا."
+    : "Your order request was submitted successfully. Our team will contact you soon.";
+
   const [row] = await db
     .insert(ordersTable)
     .values({
@@ -112,6 +131,8 @@ router.post("/orders", async (req, res) => {
       totalEstimatedPrice,
       message: input.message ?? null,
       status: "new",
+      trackingStage: "order_submitted",
+      trackingNote: defaultTrackingNote,
       paymentMethod: input.paymentMethod,
       paymentStatus: "pending",
       amountDue,

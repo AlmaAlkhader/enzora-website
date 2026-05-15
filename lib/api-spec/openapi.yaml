@@ -54,16 +54,16 @@ paths:
                 $ref: "#/components/schemas/OrderConfirmation"
 
   /orders/track:
-    get:
+    post:
       operationId: trackOrder
       tags: [orders]
-      summary: Track an order by reference number (public, safe fields only)
-      parameters:
-        - name: ref
-          in: query
-          required: true
-          schema:
-            type: string
+      summary: Track an order by reference number + email or phone (public, safe fields only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrackOrderInput"
       responses:
         "200":
           description: OK
@@ -367,6 +367,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/Order"
 
+  /admin/orders/{id}/tracking:
+    patch:
+      operationId: updateOrderTracking
+      tags: [admin]
+      summary: Update order tracking stage, location, and customer-facing note
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderTrackingInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
 components:
   schemas:
     HealthStatus:
@@ -390,6 +415,18 @@ components:
     OrderStatus:
       type: string
       enum: [new, contacted, confirmed, completed, rejected]
+
+    TrackingStage:
+      type: string
+      enum:
+        - order_submitted
+        - order_reviewed
+        - customer_contacted
+        - confirmed
+        - preparing_order
+        - ready_for_pickup
+        - completed
+        - rejected
 
     PaymentStatus:
       type: string
@@ -559,6 +596,20 @@ components:
           type: string
         paymentMethod:
           $ref: "#/components/schemas/PaymentMethodKey"
+        language:
+          type: string
+          description: Submission language (en or ar) for language-aware defaults
+
+    TrackOrderInput:
+      type: object
+      required: [orderReference, emailOrPhone]
+      properties:
+        orderReference:
+          type: string
+          minLength: 1
+        emailOrPhone:
+          type: string
+          minLength: 1
 
     OrderConfirmation:
       type: object
@@ -593,9 +644,11 @@ components:
         - productSelection
         - quantity
         - status
+        - trackingStage
         - paymentStatus
         - currency
         - createdAt
+        - updatedAt
       properties:
         id:
           type: integer
@@ -638,6 +691,14 @@ components:
           nullable: true
         status:
           $ref: "#/components/schemas/OrderStatus"
+        trackingStage:
+          $ref: "#/components/schemas/TrackingStage"
+        trackingLocation:
+          type: string
+          nullable: true
+        trackingNote:
+          type: string
+          nullable: true
         paymentMethod:
           $ref: "#/components/schemas/PaymentMethodKey"
           nullable: true
@@ -661,23 +722,21 @@ components:
         createdAt:
           type: string
           format: date-time
+        updatedAt:
+          type: string
+          format: date-time
 
     OrderTrackingResult:
       type: object
       required:
-        - id
         - orderReference
         - productNameSnapshot
         - productSelection
         - quantity
         - status
-        - paymentMethod
-        - paymentStatus
-        - currency
-        - createdAt
+        - trackingStage
+        - updatedAt
       properties:
-        id:
-          type: integer
         orderReference:
           type: string
         productNameSnapshot:
@@ -689,17 +748,15 @@ components:
           type: integer
         status:
           $ref: "#/components/schemas/OrderStatus"
-        paymentMethod:
-          $ref: "#/components/schemas/PaymentMethodKey"
-          nullable: true
-        paymentStatus:
-          $ref: "#/components/schemas/PaymentStatus"
-        amountDue:
-          type: number
-          nullable: true
-        currency:
+        trackingStage:
+          $ref: "#/components/schemas/TrackingStage"
+        trackingLocation:
           type: string
-        createdAt:
+          nullable: true
+        trackingNote:
+          type: string
+          nullable: true
+        updatedAt:
           type: string
           format: date-time
 
@@ -709,6 +766,18 @@ components:
       properties:
         status:
           $ref: "#/components/schemas/OrderStatus"
+
+    UpdateOrderTrackingInput:
+      type: object
+      properties:
+        trackingStage:
+          $ref: "#/components/schemas/TrackingStage"
+        trackingLocation:
+          type: string
+          nullable: true
+        trackingNote:
+          type: string
+          nullable: true
 
     UpdateOrderPaymentInput:
       type: object

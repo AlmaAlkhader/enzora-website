@@ -27,4 +27,6 @@ export interface CreateOrderInput {
   quantity: number;
   message?: string;
   paymentMethod: PaymentMethodKey;
+  /** Submission language (en or ar) for language-aware defaults */
+  language?: string;
 }

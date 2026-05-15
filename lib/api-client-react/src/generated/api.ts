@@ -37,9 +37,10 @@ import type {
   Product,
   SocialLinks,
   SocialLinksInput,
-  TrackOrderParams,
+  TrackOrderInput,
   UpdateOrderPaymentInput,
   UpdateOrderStatusInput,
+  UpdateOrderTrackingInput,
   UpdatePaymentMethodInput,
   UpdateProductInput
 } from './api.schemas';
@@ -204,89 +205,76 @@ export const useCreateOrder = <TError = ErrorType<unknown>,
       return useMutation(getCreateOrderMutationOptions(options));
     }
 
-export const getTrackOrderUrl = (params: TrackOrderParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getTrackOrderUrl = () => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
 
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/orders/track?${stringifiedParams}` : `/api/orders/track`
+  return `/api/orders/track`
 }
 
 /**
- * @summary Track an order by reference number (public, safe fields only)
+ * @summary Track an order by reference number + email or phone (public, safe fields only)
  */
-export const trackOrder = async (params: TrackOrderParams, options?: RequestInit): Promise<OrderTrackingResult> => {
+export const trackOrder = async (trackOrderInput: TrackOrderInput, options?: RequestInit): Promise<OrderTrackingResult> => {
 
-  return customFetch<OrderTrackingResult>(getTrackOrderUrl(params),
+  return customFetch<OrderTrackingResult>(getTrackOrderUrl(),
   {
     ...options,
-    method: 'GET'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      trackOrderInput,)
   }
 );}
 
 
 
 
+export const getTrackOrderMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof trackOrder>>, TError,{data: BodyType<TrackOrderInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof trackOrder>>, TError,{data: BodyType<TrackOrderInput>}, TContext> => {
 
-export const getTrackOrderQueryKey = (params?: TrackOrderParams,) => {
-    return [
-    `/api/orders/track`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getTrackOrderQueryOptions = <TData = Awaited<ReturnType<typeof trackOrder>>, TError = ErrorType<ErrorResponse>>(params: TrackOrderParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof trackOrder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getTrackOrderQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof trackOrder>>> = ({ signal }) => trackOrder(params, { signal, ...requestOptions });
+const mutationKey = ['trackOrder'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
 
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof trackOrder>>, {data: BodyType<TrackOrderInput>}> = (props) => {
+          const {data} = props ?? {};
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof trackOrder>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type TrackOrderQueryResult = NonNullable<Awaited<ReturnType<typeof trackOrder>>>
-export type TrackOrderQueryError = ErrorType<ErrorResponse>
+          return  trackOrder(data,requestOptions)
+        }
 
 
-/**
- * @summary Track an order by reference number (public, safe fields only)
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TrackOrderMutationResult = NonNullable<Awaited<ReturnType<typeof trackOrder>>>
+    export type TrackOrderMutationBody = BodyType<TrackOrderInput>
+    export type TrackOrderMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Track an order by reference number + email or phone (public, safe fields only)
  */
-
-export function useTrackOrder<TData = Awaited<ReturnType<typeof trackOrder>>, TError = ErrorType<ErrorResponse>>(
- params: TrackOrderParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof trackOrder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
-
- ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-
-  const queryOptions = getTrackOrderQueryOptions(params,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-
+export const useTrackOrder = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof trackOrder>>, TError,{data: BodyType<TrackOrderInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof trackOrder>>,
+        TError,
+        {data: BodyType<TrackOrderInput>},
+        TContext
+      > => {
+      return useMutation(getTrackOrderMutationOptions(options));
+    }
 
 export const getListPaymentMethodsUrl = () => {
 
@@ -1485,5 +1473,77 @@ export const useUpdateOrderPayment = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getUpdateOrderPaymentMutationOptions(options));
+    }
+
+export const getUpdateOrderTrackingUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/orders/${id}/tracking`
+}
+
+/**
+ * @summary Update order tracking stage, location, and customer-facing note
+ */
+export const updateOrderTracking = async (id: number,
+    updateOrderTrackingInput: UpdateOrderTrackingInput, options?: RequestInit): Promise<Order> => {
+
+  return customFetch<Order>(getUpdateOrderTrackingUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateOrderTrackingInput,)
+  }
+);}
+
+
+
+
+export const getUpdateOrderTrackingMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateOrderTracking>>, TError,{id: number;data: BodyType<UpdateOrderTrackingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateOrderTracking>>, TError,{id: number;data: BodyType<UpdateOrderTrackingInput>}, TContext> => {
+
+const mutationKey = ['updateOrderTracking'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateOrderTracking>>, {id: number;data: BodyType<UpdateOrderTrackingInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateOrderTracking(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateOrderTrackingMutationResult = NonNullable<Awaited<ReturnType<typeof updateOrderTracking>>>
+    export type UpdateOrderTrackingMutationBody = BodyType<UpdateOrderTrackingInput>
+    export type UpdateOrderTrackingMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update order tracking stage, location, and customer-facing note
+ */
+export const useUpdateOrderTracking = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateOrderTracking>>, TError,{id: number;data: BodyType<UpdateOrderTrackingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateOrderTracking>>,
+        TError,
+        {id: number;data: BodyType<UpdateOrderTrackingInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateOrderTrackingMutationOptions(options));
     }
 

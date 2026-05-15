@@ -24,7 +24,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={PublicLanding} />
-      <Route path="/track" component={OrderTracking} />
+      <Route path="/track-order" component={OrderTracking} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />

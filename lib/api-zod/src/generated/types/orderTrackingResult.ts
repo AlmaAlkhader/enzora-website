@@ -6,20 +6,17 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { OrderStatus } from './orderStatus';
-import type { PaymentMethodKey } from './paymentMethodKey';
-import type { PaymentStatus } from './paymentStatus';
 import type { ProductSelection } from './productSelection';
+import type { TrackingStage } from './trackingStage';
 
 export interface OrderTrackingResult {
-  id: number;
   orderReference: string;
   productNameSnapshot: string | null;
   productSelection: ProductSelection;
   quantity: number;
   status: OrderStatus;
-  paymentMethod: PaymentMethodKey | null;
-  paymentStatus: PaymentStatus;
-  amountDue?: number | null;
-  currency: string;
-  createdAt: Date;
+  trackingStage: TrackingStage;
+  trackingLocation?: string | null;
+  trackingNote?: string | null;
+  updatedAt: Date;
 }

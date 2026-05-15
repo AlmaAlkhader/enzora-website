@@ -40,6 +40,17 @@ export function serializeOrder(row: OrderRow) {
       | "confirmed"
       | "completed"
       | "rejected",
+    trackingStage: (row.trackingStage ?? "order_submitted") as
+      | "order_submitted"
+      | "order_reviewed"
+      | "customer_contacted"
+      | "confirmed"
+      | "preparing_order"
+      | "ready_for_pickup"
+      | "completed"
+      | "rejected",
+    trackingLocation: row.trackingLocation ?? null,
+    trackingNote: row.trackingNote ?? null,
     paymentMethod: (row.paymentMethod ?? null) as
       | "cash_on_delivery"
       | "cash_on_pickup"
@@ -60,5 +71,6 @@ export function serializeOrder(row: OrderRow) {
     currency: row.currency ?? "USD",
     paidAt: row.paidAt ? row.paidAt.toISOString() : null,
     createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
   };
 }

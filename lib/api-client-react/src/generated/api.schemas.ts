@@ -36,6 +36,20 @@ export const OrderStatus = {
   rejected: 'rejected',
 } as const;
 
+export type TrackingStage = typeof TrackingStage[keyof typeof TrackingStage];
+
+
+export const TrackingStage = {
+  order_submitted: 'order_submitted',
+  order_reviewed: 'order_reviewed',
+  customer_contacted: 'customer_contacted',
+  confirmed: 'confirmed',
+  preparing_order: 'preparing_order',
+  ready_for_pickup: 'ready_for_pickup',
+  completed: 'completed',
+  rejected: 'rejected',
+} as const;
+
 export type PaymentStatus = typeof PaymentStatus[keyof typeof PaymentStatus];
 
 
@@ -146,6 +160,15 @@ export interface CreateOrderInput {
   quantity: number;
   message?: string;
   paymentMethod: PaymentMethodKey;
+  /** Submission language (en or ar) for language-aware defaults */
+  language?: string;
+}
+
+export interface TrackOrderInput {
+  /** @minLength 1 */
+  orderReference: string;
+  /** @minLength 1 */
+  emailOrPhone: string;
 }
 
 export interface OrderConfirmation {
@@ -176,6 +199,9 @@ export interface Order {
   totalEstimatedPrice?: number | null;
   message?: string | null;
   status: OrderStatus;
+  trackingStage: TrackingStage;
+  trackingLocation?: string | null;
+  trackingNote?: string | null;
   paymentMethod?: PaymentMethodKey | null;
   paymentStatus: PaymentStatus;
   paymentNote?: string | null;
@@ -184,24 +210,29 @@ export interface Order {
   currency: string;
   paidAt?: string | null;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface OrderTrackingResult {
-  id: number;
   orderReference: string;
   productNameSnapshot: string | null;
   productSelection: ProductSelection;
   quantity: number;
   status: OrderStatus;
-  paymentMethod: PaymentMethodKey | null;
-  paymentStatus: PaymentStatus;
-  amountDue?: number | null;
-  currency: string;
-  createdAt: string;
+  trackingStage: TrackingStage;
+  trackingLocation?: string | null;
+  trackingNote?: string | null;
+  updatedAt: string;
 }
 
 export interface UpdateOrderStatusInput {
   status: OrderStatus;
+}
+
+export interface UpdateOrderTrackingInput {
+  trackingStage?: TrackingStage;
+  trackingLocation?: string | null;
+  trackingNote?: string | null;
 }
 
 export interface UpdateOrderPaymentInput {
@@ -252,10 +283,6 @@ export interface OrdersSummary {
   byStatus: OrdersSummaryByStatus;
   recent: Order[];
 }
-
-export type TrackOrderParams = {
-ref: string;
-};
 
 export type ListOrdersParams = {
 status?: OrderStatus;

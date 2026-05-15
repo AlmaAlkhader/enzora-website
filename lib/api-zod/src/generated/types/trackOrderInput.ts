@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type TrackOrderParams = {
-ref: string;
-};
+export interface TrackOrderInput {
+  /** @minLength 1 */
+  orderReference: string;
+  /** @minLength 1 */
+  emailOrPhone: string;
+}

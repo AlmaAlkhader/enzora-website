@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { z } from "zod/v4";
 import { AdminLoginBody, UpdateOrderStatusBody, UpdateOrderPaymentBody } from "@workspace/api-zod";
 import { db, ordersTable } from "@workspace/db";
 import {
@@ -151,7 +152,7 @@ router.patch("/admin/orders/:id", requireAdmin, async (req, res) => {
   }
   const [row] = await db
     .update(ordersTable)
-    .set({ status: parsed.data.status })
+    .set({ status: parsed.data.status, updatedAt: new Date() })
     .where(eq(ordersTable.id, id))
     .returning();
   if (!row) {
@@ -173,7 +174,7 @@ router.patch("/admin/orders/:id/payment", requireAdmin, async (req, res) => {
     return;
   }
 
-  const update: Record<string, unknown> = {};
+  const update: Record<string, unknown> = { updatedAt: new Date() };
 
   if (parsed.data.paymentStatus !== undefined) {
     const newStatus = parsed.data.paymentStatus;
@@ -221,6 +222,73 @@ router.patch("/admin/orders/:id/payment", requireAdmin, async (req, res) => {
     return;
   }
   req.log.info({ id, update }, "Order payment updated");
+  res.json(serializeOrder(row));
+});
+
+const ALLOWED_TRACKING_STAGES = new Set([
+  "order_submitted",
+  "order_reviewed",
+  "customer_contacted",
+  "confirmed",
+  "preparing_order",
+  "ready_for_pickup",
+  "completed",
+  "rejected",
+]);
+
+const UpdateOrderTrackingBody = z.object({
+  trackingStage: z.enum([
+    "order_submitted",
+    "order_reviewed",
+    "customer_contacted",
+    "confirmed",
+    "preparing_order",
+    "ready_for_pickup",
+    "completed",
+    "rejected",
+  ]).optional(),
+  trackingLocation: z.string().nullable().optional(),
+  trackingNote: z.string().nullable().optional(),
+});
+
+router.patch("/admin/orders/:id/tracking", requireAdmin, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const parsed = UpdateOrderTrackingBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid tracking input" });
+    return;
+  }
+
+  const update: Record<string, unknown> = { updatedAt: new Date() };
+
+  if (parsed.data.trackingStage !== undefined) {
+    if (!ALLOWED_TRACKING_STAGES.has(parsed.data.trackingStage)) {
+      res.status(400).json({ error: "Invalid tracking stage" });
+      return;
+    }
+    update["trackingStage"] = parsed.data.trackingStage;
+  }
+  if ("trackingLocation" in parsed.data) {
+    update["trackingLocation"] = parsed.data.trackingLocation ?? null;
+  }
+  if ("trackingNote" in parsed.data) {
+    update["trackingNote"] = parsed.data.trackingNote ?? null;
+  }
+
+  const [row] = await db
+    .update(ordersTable)
+    .set(update)
+    .where(eq(ordersTable.id, id))
+    .returning();
+  if (!row) {
+    res.status(404).json({ error: "Not found" });
+    return;
+  }
+  req.log.info({ id, update }, "Order tracking updated");
   res.json(serializeOrder(row));
 });
 

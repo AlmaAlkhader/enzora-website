@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { useLanguage } from "@/lib/language-context";
 import {
   Menu, X, CheckCircle2, Heart, Shield, ShieldCheck,
-  Sparkles, ArrowRight, ArrowLeft, Package, Building2, Lock, Mail
+  Sparkles, ArrowRight, ArrowLeft, Package, Building2, Lock, Mail, MapPin
 } from "lucide-react";
 
 const PALESTINIAN_CITIES = [
@@ -247,6 +247,7 @@ export default function Landing() {
       quantity: data.quantity,
       message: data.message,
       paymentMethod: data.paymentMethod,
+      language,
     };
     orderMutation.mutate(
       { data: payload },
@@ -327,6 +328,7 @@ export default function Landing() {
             <button onClick={() => scrollTo("app")} className="hover:text-primary transition-colors">{t.nav.app}</button>
             <button onClick={() => scrollTo("partners")} className="hover:text-primary transition-colors">{t.nav.partners}</button>
             <button onClick={() => scrollTo("faq")} className="hover:text-primary transition-colors">{t.nav.faq}</button>
+            <Link href="/track-order" className="hover:text-primary transition-colors">{t.nav.trackOrder}</Link>
             <LanguageToggle />
             <Button onClick={() => scrollTo("order")} className="rounded-full px-6 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all">
               {t.nav.orderNow}
@@ -345,6 +347,7 @@ export default function Landing() {
             <button onClick={() => scrollTo("app")} className="text-start font-medium p-2">{t.nav.app}</button>
             <button onClick={() => scrollTo("partners")} className="text-start font-medium p-2">{t.nav.partners}</button>
             <button onClick={() => scrollTo("faq")} className="text-start font-medium p-2">{t.nav.faq}</button>
+            <Link href="/track-order" className="text-start font-medium p-2 hover:text-primary transition-colors">{t.nav.trackOrder}</Link>
             <Button onClick={() => scrollTo("order")} className="w-full">{t.nav.orderNow}</Button>
             <div className="pt-2">
               <LanguageToggle />
@@ -643,7 +646,12 @@ export default function Landing() {
                 <div className="inline-block bg-gray-50 border px-6 py-3 rounded-xl font-mono font-medium text-base mt-2">
                   {t.order.successRef} {orderSuccess.orderReference}
                 </div>
-                <div className="pt-6">
+                <div className="pt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                  <Link href={`/track-order?ref=${orderSuccess.orderReference}`}>
+                    <Button size="lg" className="rounded-full px-7 w-full sm:w-auto">
+                      {t.order.successTrackBtn}
+                    </Button>
+                  </Link>
                   <Button variant="outline" size="lg" className="rounded-full" onClick={() => setOrderSuccess(null)}>
                     {t.order.submitAnother}
                   </Button>
@@ -1060,6 +1068,7 @@ export default function Landing() {
                 <li><button onClick={() => scrollTo("app")} className="hover:text-white transition-colors">{t.nav.app}</button></li>
                 <li><button onClick={() => scrollTo("partners")} className="hover:text-white transition-colors">{t.nav.partners}</button></li>
                 <li><button onClick={() => scrollTo("faq")} className="hover:text-white transition-colors">{t.nav.faq}</button></li>
+                <li><Link href="/track-order" className="hover:text-white transition-colors">{t.footer.trackOrder}</Link></li>
                 <li><Link href="/admin/login" className="hover:text-white transition-colors">{t.footer.adminLogin}</Link></li>
               </ul>
             </div>

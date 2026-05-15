@@ -59,4 +59,43 @@ CREATE TABLE IF NOT EXISTS social_links (
 );
 `,
   },
+  {
+    name: "0003_orders_tracking_columns.sql",
+    sql: `
+-- Migration: add order tracking columns and updatedAt to orders table
+-- All columns are added idempotently (IF NOT EXISTS) so this is safe to re-run.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'orders' AND column_name = 'tracking_stage'
+  ) THEN
+    ALTER TABLE orders ADD COLUMN tracking_stage text NOT NULL DEFAULT 'order_submitted';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'orders' AND column_name = 'tracking_location'
+  ) THEN
+    ALTER TABLE orders ADD COLUMN tracking_location text;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'orders' AND column_name = 'tracking_note'
+  ) THEN
+    ALTER TABLE orders ADD COLUMN tracking_note text;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'orders' AND column_name = 'updated_at'
+  ) THEN
+    ALTER TABLE orders ADD COLUMN updated_at timestamp with time zone NOT NULL DEFAULT now();
+    -- Backfill existing rows so updated_at = created_at
+    UPDATE orders SET updated_at = created_at WHERE updated_at = now() AND created_at < now();
+  END IF;
+END $$;
+`,
+  },
 ];
