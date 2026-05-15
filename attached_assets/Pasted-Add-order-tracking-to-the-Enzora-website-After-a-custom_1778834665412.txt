@@ -1,0 +1,212 @@
+Add order tracking to the Enzora website.
+
+After a customer submits an order, the system must generate a unique order reference number and show it clearly to the customer.
+
+Example order number format:
+ENZ-2026-0001
+or
+ENZ-8F42A1
+
+Important:
+The customer should be able to use this order number later to track the order.
+
+Public order tracking page:
+Create a page:
+
+/track-order
+
+Add a “Track Order” link in the navbar and footer.
+
+The tracking page should include:
+- Order reference number input
+- Email or phone number input for verification
+- Track Order button
+
+When the customer submits:
+- Search the database for the order reference
+- Verify that the email or phone matches the order
+- Show the order status if found
+- Show a friendly error if not found
+
+Public tracking result should show:
+- Order reference number
+- Product selected
+- Quantity
+- Current order status
+- Current order location/stage
+- Last updated date
+- Admin note if available
+
+Do not show private admin information.
+
+Order tracking statuses:
+Use these customer-facing stages:
+
+1. Order submitted
+2. Order reviewed
+3. Customer contacted
+4. Confirmed
+5. Preparing order
+6. Ready for pickup / delivery
+7. Completed
+8. Rejected / cancelled
+
+Admin dashboard update:
+In the admin dashboard, admins must be able to update where each order is.
+
+For every order, admin should be able to edit:
+- Order status
+- Tracking stage
+- Current location or note
+- Admin/customer-facing note
+- Last updated timestamp
+
+Add buttons/forms in the admin dashboard:
+- Update Status
+- Save Tracking Update
+- Mark as Contacted
+- Mark as Confirmed
+- Mark as Preparing
+- Mark as Ready
+- Mark as Completed
+- Mark as Rejected
+
+The admin should be able to manually write a tracking note such as:
+- “Your order has been received.”
+- “Our team will contact you soon.”
+- “Your package is being prepared.”
+- “Your order is ready for pickup.”
+- “Your order has been completed.”
+
+Database update:
+Update the orders table to include:
+
+- id
+- order_reference
+- full_name
+- email
+- phone
+- country
+- city
+- product_key
+- product_name_snapshot
+- product_price_snapshot
+- product_currency_snapshot
+- quantity
+- total_estimated_price
+- customer_type
+- message
+- status
+- tracking_stage
+- tracking_location
+- tracking_note
+- created_at
+- updated_at
+
+If some fields already exist, do not duplicate them. Add only missing fields.
+
+Order submission behavior:
+When a customer submits an order:
+- Generate a unique order_reference
+- Save the order to the database
+- Set status to “New”
+- Set tracking_stage to “Order submitted”
+- Set tracking_note to “Your order request was submitted successfully. Our team will contact you soon.”
+- Show a success message with the order reference number
+
+Success message in English:
+“Your Enzora order request was submitted successfully. Your order reference is ENZ-XXXXXX. Please save this number to track your order.”
+
+Success message in Arabic:
+“تم إرسال طلبك بنجاح. رقم تتبع الطلب الخاص بك هو ENZ-XXXXXX. يرجى الاحتفاظ بهذا الرقم لمتابعة حالة الطلب.”
+
+Add a button after success:
+English:
+“Track My Order”
+
+Arabic:
+“تتبع طلبي”
+
+Arabic support:
+Since the website has an Arabic option, translate the tracking page too.
+
+English tracking page text:
+Title:
+“Track Your Order”
+
+Subtitle:
+“Enter your order reference number and email or phone number to check the latest update.”
+
+Fields:
+- Order reference number
+- Email or phone number
+- Track Order
+
+Arabic tracking page text:
+Title:
+“تتبع طلبك”
+
+Subtitle:
+“أدخل رقم الطلب والبريد الإلكتروني أو رقم الهاتف لمعرفة آخر تحديث.”
+
+Fields:
+- رقم الطلب
+- البريد الإلكتروني أو رقم الهاتف
+- تتبع الطلب
+
+English tracking result labels:
+- Order Reference
+- Product
+- Quantity
+- Status
+- Current Stage
+- Latest Update
+- Last Updated
+
+Arabic tracking result labels:
+- رقم الطلب
+- المنتج
+- الكمية
+- الحالة
+- المرحلة الحالية
+- آخر تحديث
+- آخر تعديل
+
+Privacy/security:
+Do not allow anyone to see all orders from the tracking page.
+A customer can only track one order by entering:
+- order_reference
+and
+- matching email or phone number
+
+Admin dashboard remains protected by login.
+
+Navbar update:
+Add:
+English: Track Order
+Arabic: تتبع الطلب
+
+Footer update:
+Add:
+English: Track Order
+Arabic: تتبع الطلب
+
+Design:
+Make the tracking page match Enzora’s style:
+- Soft premium medical-tech design
+- White rounded cards
+- Indigo/violet buttons
+- Mint success indicators
+- Clear timeline/progress design
+- Responsive on mobile
+
+Tracking visual:
+Show the order progress as a vertical timeline on mobile and horizontal steps on desktop.
+
+Example:
+Order submitted → Reviewed → Contacted → Confirmed → Preparing → Ready → Completed
+
+Highlight the current stage with the Enzora indigo/mint color.
+
+Final result:
+Customers should receive an order reference number after submitting an order. They should be able to visit /track-order, enter the order number plus email or phone, and see the latest status. Admins should be able to update the order’s status, stage, location/note, and the customer should see the updated tracking information.

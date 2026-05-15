@@ -1,0 +1,296 @@
+Add an Arabic language option to the Enzora website.
+
+The website should support two languages:
+- English
+- Arabic
+
+Add a clear language switcher in the navbar:
+- EN
+- AR
+
+When the user clicks AR:
+- The public website text should change to Arabic.
+- The layout direction should become RTL.
+- Text should align right.
+- Navbar order and section spacing should work correctly in Arabic.
+- Buttons, forms, product cards, FAQ, footer, and privacy section should all translate properly.
+
+When the user clicks EN:
+- The website returns to English.
+- Layout direction becomes LTR.
+
+Important:
+Do not create a separate Arabic website.
+Use the same website with language switching.
+
+Suggested implementation:
+- Create a translations file, for example:
+  lib/translations.ts
+- Store all public website text in English and Arabic.
+- Use a language context/provider or simple state stored in localStorage.
+- Save the selected language in localStorage so when the user refreshes, the chosen language stays.
+- Set the HTML direction dynamically:
+  - dir="ltr" for English
+  - dir="rtl" for Arabic
+- Set lang dynamically:
+  - lang="en"
+  - lang="ar"
+
+Arabic font:
+Use a clean Arabic-friendly font if possible, such as:
+- Cairo
+- Tajawal
+- Noto Sans Arabic
+
+Do not use a font that makes Arabic look broken or crowded.
+
+Translate all public website sections:
+
+1. Navbar
+English:
+Home, About, How It Works, Features, Product, App, Order, FAQ, Privacy
+
+Arabic:
+الرئيسية، من نحن، كيف يعمل، المميزات، المنتج، التطبيق، الطلب، الأسئلة الشائعة، الخصوصية
+
+2. Hero Section
+
+English headline:
+“Smarter wound monitoring with a color-guided bandage and connected device.”
+
+Arabic headline:
+“متابعة أذكى للجروح باستخدام ضمادة ذكية وجهاز متصل.”
+
+English supporting text:
+“Enzora combines a color-guided wound bandage with an optional smart sensor device. The bandage supports simple visual monitoring, while the device reads color changes and sends updates to the mobile app for clearer home wound-care awareness.”
+
+Arabic supporting text:
+“تجمع Enzora بين ضمادة موجهة بالألوان وجهاز ذكي اختياري. تساعد الضمادة على المتابعة البصرية البسيطة، بينما يقرأ الجهاز تغيّرات اللون ويرسل التحديثات إلى تطبيق الهاتف لدعم متابعة أوضح للجروح في المنزل.”
+
+Buttons:
+English:
+Buy Bandage Pack
+Order Device
+See How It Works
+
+Arabic:
+شراء حزمة الضمادات
+طلب الجهاز
+كيف يعمل
+
+3. About Section
+
+English title:
+“Who We Are”
+
+Arabic title:
+“من نحن”
+
+Arabic content:
+“Enzora هي شركة طبية ناشئة من جامعة بيرزيت، تعمل على تطوير نظام ضمادة ذكية يساعد في متابعة الجروح وملاحظة التغيرات المحتملة بشكل أوضح باستخدام تقنيات حديثة ومبتكرة.”
+
+Mission:
+English:
+“Our Mission”
+
+Arabic:
+“رسالتنا”
+
+Arabic mission text:
+“نسعى إلى تطوير حلول طبية ذكية تساهم في تحسين رعاية المرضى وجعل متابعة الجروح أكثر وضوحًا وأمانًا وفعالية.”
+
+Vision:
+English:
+“Our Vision”
+
+Arabic:
+“رؤيتنا”
+
+Arabic vision text:
+“أن نكون جزءًا من مستقبل الرعاية الصحية الذكية من خلال حلول مبتكرة تسهّل حياة المرضى وتدعم المتابعة المستمرة وتُحدث أثرًا إيجابيًا في القطاع الطبي.”
+
+4. Product Options Section
+
+English title:
+“Choose your Enzora package”
+
+Arabic title:
+“اختر باقة Enzora المناسبة لك”
+
+Product 1:
+English:
+Enzora Bandage Pack
+5 bandages included
+$20
+$4 per bandage
+
+Arabic:
+حزمة ضمادات Enzora
+تتضمن 5 ضمادات
+20 دولار
+4 دولارات لكل ضمادة
+
+Product 2:
+English:
+Enzora Smart Device
+Contact us for pricing
+Device sold separately
+
+Arabic:
+جهاز Enzora الذكي
+تواصل معنا لمعرفة السعر
+يباع الجهاز بشكل منفصل
+
+Product 3:
+English:
+Complete Enzora Package
+Device + bandage pack
+Recommended
+
+Arabic:
+باقة Enzora الكاملة
+الجهاز + حزمة الضمادات
+الخيار الموصى به
+
+5. Bandage explanation
+
+English:
+“The Enzora bandage pack can be used alone for simple visual monitoring. The bandage helps users and caregivers notice color changes manually.”
+
+Arabic:
+“يمكن استخدام حزمة ضمادات Enzora وحدها للمتابعة البصرية البسيطة. تساعد الضمادة المستخدمين ومقدمي الرعاية على ملاحظة تغيرات اللون يدويًا.”
+
+6. Device explanation
+
+English:
+“The Enzora device makes monitoring smarter by reading bandage color changes more consistently and sending updates to the mobile app.”
+
+Arabic:
+“يجعل جهاز Enzora عملية المتابعة أكثر ذكاءً من خلال قراءة تغيّرات لون الضمادة بشكل أكثر انتظامًا وإرسال التحديثات إلى تطبيق الهاتف.”
+
+7. Order Form
+
+Translate all labels and placeholders.
+
+English labels:
+Full name
+Email
+Phone number
+Country
+City
+Product selection
+Quantity
+Customer type
+Message
+Submit Order Request
+
+Arabic labels:
+الاسم الكامل
+البريد الإلكتروني
+رقم الهاتف
+الدولة
+المدينة
+اختيار المنتج
+الكمية
+نوع العميل
+الرسالة
+إرسال طلب الشراء
+
+Arabic Palestinian placeholders:
+Full name:
+“محمد أحمد” or “سارة خالد”
+
+Phone:
+“+970 59 000 0000”
+
+City options in Arabic:
+رام الله
+البيرة
+القدس
+نابلس
+الخليل
+بيت لحم
+جنين
+طولكرم
+قلقيلية
+سلفيت
+أريحا
+طوباس
+غزة
+خانيونس
+رفح
+أخرى
+
+Customer type options:
+Patient = مريض
+Caregiver = مقدم رعاية
+Clinic = عيادة
+Hospital = مستشفى
+Medical distributor = موزع طبي
+Research institution = مؤسسة بحثية
+Other = أخرى
+
+Success message:
+English:
+“Your Enzora order request was submitted successfully. Our team will contact you soon.”
+
+Arabic:
+“تم إرسال طلبك بنجاح. سيتواصل معك فريق Enzora قريبًا.”
+
+8. Privacy Section
+
+English title:
+“Privacy-first by design”
+
+Arabic title:
+“الخصوصية أولًا في التصميم”
+
+Arabic privacy text:
+“نظرًا لأن متابعة الجروح قد تتضمن معلومات حساسة، تم تصميم Enzora مع مراعاة الخصوصية والشفافية والموافقة وحماية البيانات.”
+
+Translate privacy cards:
+Data minimization = تقليل البيانات
+Clear consent = موافقة واضحة
+Secure handling = معالجة آمنة
+User rights = حقوق المستخدم
+
+9. FAQ Section
+
+Translate all FAQ questions and answers into Arabic.
+
+Add Arabic version of medical disclaimer:
+“Enzora أداة داعمة للمتابعة ولا تُعد بديلًا عن الاستشارة الطبية أو التشخيص أو العلاج من قبل مختص.”
+
+10. Footer
+
+Translate:
+Quick links
+Contact
+Follow Enzora
+Privacy Policy
+Medical Disclaimer
+All rights reserved
+
+Arabic:
+روابط سريعة
+تواصل معنا
+تابع Enzora
+سياسة الخصوصية
+إخلاء المسؤولية الطبية
+جميع الحقوق محفوظة
+
+Admin dashboard:
+The admin dashboard can stay in English for now unless it is easy to support Arabic too.
+Most important is that the public customer-facing website supports Arabic.
+
+Important technical requirements:
+- Arabic text must not appear reversed or broken.
+- RTL spacing must look professional.
+- Navbar mobile menu must work in Arabic.
+- Product cards must not overflow with Arabic text.
+- Order form must work in both languages.
+- Submitting an order must still save to the same Replit PostgreSQL database.
+- Admin dashboard should show submitted order data normally, even if the user submitted from the Arabic version.
+
+Final result:
+The website should have a working EN/AR language toggle, with Arabic RTL support, translated public website content, translated order form, and the same Enzora visual identity.

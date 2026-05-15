@@ -1,0 +1,219 @@
+Add payment methods to the Enzora website.
+
+Important:
+Do not collect or store credit card numbers directly.
+Do not create fake online payment processing.
+If online card payment is added later, it must use a real secure payment gateway.
+
+For now, implement manual/local payment methods suitable for customers in Palestine.
+
+Payment methods to show:
+1. Cash on delivery
+2. Cash on pickup
+3. Bank transfer
+4. Mobile wallet transfer
+5. Contact us for payment arrangement
+
+The customer should be able to choose a payment method when placing an order.
+
+Order form update:
+Add a section titled:
+“Payment Method”
+
+Add payment method radio buttons or cards:
+- Cash on delivery
+- Cash on pickup
+- Bank transfer
+- Mobile wallet transfer
+- Contact us for payment arrangement
+
+If customer selects Bank transfer:
+Show text:
+“Our team will contact you with bank transfer details after confirming your order.”
+
+If customer selects Mobile wallet transfer:
+Show text:
+“Our team will contact you with mobile wallet payment details after confirming your order.”
+
+If customer selects Cash on delivery:
+Show text:
+“You can pay when your order is delivered.”
+
+If customer selects Cash on pickup:
+Show text:
+“You can pay when you pick up your order.”
+
+If customer selects Contact us:
+Show text:
+“Our team will contact you to arrange the most suitable payment method.”
+
+Product price behavior:
+- The Enzora Bandage Pack has a visible price from the database.
+- The Smart Device may show “Contact us for pricing” unless admin adds a price.
+- The Complete Enzora Package may show “Contact us for pricing” unless admin adds a price.
+
+If the selected product has a price:
+- Show unit price
+- Show quantity
+- Show estimated total
+
+Example:
+Unit price: $20
+Quantity: 2
+Estimated total: $40
+
+If the selected product has no price:
+Show:
+“Pricing will be confirmed by the Enzora team.”
+
+Order database update:
+Add these fields to the orders table:
+- payment_method
+- payment_status
+- payment_note
+- payment_reference
+- amount_due
+- currency
+- paid_at
+
+Default payment_status:
+“Pending”
+
+Payment status options:
+- Pending
+- Awaiting confirmation
+- Paid
+- Failed
+- Refunded
+- Cancelled
+
+When an order is submitted:
+- Save selected payment method
+- Save payment status as “Pending”
+- Save estimated amount due if product has a price
+- Save currency as USD
+- Keep order tracking working
+
+Customer success message:
+If product has a price:
+“Your Enzora order request was submitted successfully. Your estimated total is $XX. Your order reference is ENZ-XXXXXX. Our team will contact you to confirm payment and delivery.”
+
+If product has no price:
+“Your Enzora order request was submitted successfully. Your order reference is ENZ-XXXXXX. Our team will contact you with pricing and payment details.”
+
+Arabic success message:
+If product has a price:
+“تم إرسال طلبك بنجاح. المجموع التقديري هو XX دولار. رقم طلبك هو ENZ-XXXXXX. سيتواصل معك فريق Enzora لتأكيد الدفع والتوصيل.”
+
+If product has no price:
+“تم إرسال طلبك بنجاح. رقم طلبك هو ENZ-XXXXXX. سيتواصل معك فريق Enzora لتأكيد السعر وطريقة الدفع.”
+
+Admin dashboard update:
+In the admin dashboard, show payment information for every order:
+- Payment method
+- Payment status
+- Amount due
+- Currency
+- Payment reference
+- Payment note
+- Paid date if available
+
+Admin should be able to update:
+- Payment status
+- Payment note
+- Payment reference
+- Amount due if needed
+
+Add admin buttons:
+- Mark as Awaiting Confirmation
+- Mark as Paid
+- Mark as Failed
+- Mark as Refunded
+- Mark as Cancelled
+- Save Payment Note
+
+Admin should also still be able to update:
+- Order status
+- Tracking stage
+- Tracking note
+- Pricing
+- Product availability
+
+Order tracking page update:
+When customer tracks their order, show payment information safely:
+- Payment method
+- Payment status
+- Amount due if available
+- Do not show private admin-only notes
+
+Customer-facing payment labels:
+English:
+Payment Method
+Payment Status
+Amount Due
+
+Arabic:
+طريقة الدفع
+حالة الدفع
+المبلغ المستحق
+
+Admin pricing connection:
+Payment total must use the current product price from the database at the time of order.
+
+When order is submitted, save:
+- product_price_snapshot
+- quantity
+- total_estimated_price
+- payment_method
+- payment_status
+- amount_due
+
+Important:
+If admin changes product prices later, old orders should keep the price snapshot from the time of order.
+
+Payment methods management:
+Add a simple admin section called:
+“Payment Settings”
+
+Admin can:
+- Enable or disable payment methods
+- Edit payment instructions for each method
+- Save changes
+
+Payment methods table:
+- id
+- method_key
+- name_en
+- name_ar
+- instructions_en
+- instructions_ar
+- is_active
+- updated_at
+
+Default active methods:
+- cash_on_delivery
+- cash_on_pickup
+- bank_transfer
+- mobile_wallet
+- contact_us
+
+Public order form should only show active payment methods.
+
+Privacy and security:
+- Do not collect card numbers.
+- Do not store sensitive financial information.
+- Do not expose payment admin notes publicly.
+- Admin dashboard must remain protected.
+- Public tracking page should only show safe payment status.
+
+Design:
+Payment method cards should match Enzora’s style:
+- Rounded white cards
+- Indigo selected border
+- Mint check indicator
+- Clear labels
+- Arabic RTL support
+- Mobile responsive
+
+Final result:
+Customers can choose a payment method when buying Enzora products. The order stores payment information, the admin can update payment status, and customers can track both order status and payment status using their order reference number.
