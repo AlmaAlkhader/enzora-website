@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
+import { eq } from "drizzle-orm";
 import { CreateOrderBody } from "@workspace/api-zod";
-import { db, ordersTable } from "@workspace/db";
+import { db, ordersTable, productsTable } from "@workspace/db";
 import { generateReference, serializeOrder } from "../lib/orders";
 
 const router: IRouter = Router();
@@ -19,6 +20,20 @@ router.post("/orders", async (req, res) => {
     country && city
       ? `${city}, ${country}`
       : input.countryCity ?? (country ?? city ?? "");
+
+  const [product] = await db
+    .select()
+    .from(productsTable)
+    .where(eq(productsTable.productKey, input.productSelection));
+
+  const productNameSnapshot = product?.name ?? null;
+  const productPriceSnapshot = product?.price != null ? product.price : null;
+  const productCurrencySnapshot = product?.currency ?? null;
+  const totalEstimatedPrice =
+    productPriceSnapshot != null
+      ? String(parseFloat(productPriceSnapshot) * input.quantity)
+      : null;
+
   const [row] = await db
     .insert(ordersTable)
     .values({
@@ -32,6 +47,10 @@ router.post("/orders", async (req, res) => {
       customerType: input.customerType,
       productSelection: input.productSelection,
       quantity: input.quantity,
+      productNameSnapshot,
+      productPriceSnapshot,
+      productCurrencySnapshot,
+      totalEstimatedPrice,
       message: input.message ?? null,
       status: "new",
     })

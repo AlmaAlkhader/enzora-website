@@ -8,6 +8,7 @@
 
 export * from './adminLoginInput';
 export * from './adminMe';
+export * from './adminProduct';
 export * from './adminSession';
 export * from './createOrderInput';
 export * from './customerType';
@@ -18,7 +19,9 @@ export * from './orderConfirmation';
 export * from './ordersSummary';
 export * from './ordersSummaryByStatus';
 export * from './orderStatus';
+export * from './product';
 export * from './productSelection';
 export * from './socialLinks';
 export * from './socialLinksInput';
 export * from './updateOrderStatusInput';
+export * from './updateProductInput';

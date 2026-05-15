@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCreateOrder, ProductSelection } from "@workspace/api-client-react";
+import { useCreateOrder, useListProducts, ProductSelection, type Product } from "@workspace/api-client-react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,39 +67,26 @@ const Section = ({ id, className = "", children }: { id?: string; className?: st
   </motion.section>
 );
 
-type ProductOption = {
-  id: ProductSelection;
-  title: string;
-  price: string;
+type ProductStaticMeta = {
   subtitle: string;
-  description: string;
   features: string[];
   cta: string;
   highlight: boolean;
 };
 
-const productOptions: ProductOption[] = [
-  {
-    id: "bandage_pack",
-    title: "Enzora Bandage Pack",
-    price: "$20",
-    subtitle: "5 bandages — $4 per bandage",
-    description: "For simple visual color-guided monitoring at home.",
+const PRODUCT_STATIC_META: Record<string, ProductStaticMeta> = {
+  bandage_pack: {
+    subtitle: "5 bandages per pack",
     features: [
       "5 bandages per pack",
-      "$4 per bandage",
       "Color-based visual guidance",
       "No device required",
     ],
     cta: "Buy Bandage Pack",
     highlight: false,
   },
-  {
-    id: "smart_device",
-    title: "Enzora Smart Device",
-    price: "Contact us for pricing",
+  smart_device: {
     subtitle: "Sold separately",
-    description: "Reads Enzora bandage color changes and connects to the mobile app.",
     features: [
       "Sensor-based color reading",
       "Connects to Enzora mobile app",
@@ -109,12 +96,8 @@ const productOptions: ProductOption[] = [
     cta: "Contact Sales",
     highlight: false,
   },
-  {
-    id: "complete_package",
-    title: "Complete Enzora Package",
-    price: "Contact us for pricing",
+  complete_package: {
     subtitle: "Device + bandage pack",
-    description: "Full Enzora monitoring experience.",
     features: [
       "Smart sensor device",
       "Bandage pack included (5 bandages)",
@@ -124,7 +107,7 @@ const productOptions: ProductOption[] = [
     cta: "Get Complete Package",
     highlight: true,
   },
-];
+};
 
 const appScreens = [
   {
@@ -152,6 +135,7 @@ export default function Landing() {
   const reduceMotion = useReducedMotion();
 
   const orderMutation = useCreateOrder();
+  const { data: liveProducts = [], isLoading: isProductsLoading } = useListProducts();
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderFormSchema),
@@ -204,21 +188,25 @@ export default function Landing() {
     scrollTo("order");
   };
 
-  const quantityCopy: Record<ProductSelection, { label: string; hint: string }> = {
-    bandage_pack: {
-      label: "Number of bandage packs",
-      hint: "Each pack contains 5 bandages ($20 per pack).",
-    },
-    smart_device: {
-      label: "Number of devices",
-      hint: "How many smart devices would you like? Pricing on request.",
-    },
-    complete_package: {
-      label: "Number of complete packages",
-      hint: "Each package includes a device and a bandage pack (5 bandages). Pricing on request.",
-    },
+  const getProductDisplayText = (key: ProductSelection): string => {
+    const p = liveProducts.find((p) => p.productKey === key);
+    return p?.displayText ?? "Contact us for pricing";
   };
-  const { label: quantityLabel, hint: quantityHint } = quantityCopy[selectedProduct];
+
+  const quantityCopyLabels: Record<ProductSelection, string> = {
+    bandage_pack: "Number of bandage packs",
+    smart_device: "Number of devices",
+    complete_package: "Number of complete packages",
+  };
+
+  const quantityCopyHints: Record<ProductSelection, (displayText: string) => string> = {
+    bandage_pack: (dt) => `Each pack contains 5 bandages (${dt} per pack). Equivalent local payment options can be discussed after submission.`,
+    smart_device: (dt) => `How many smart devices would you like? Price: ${dt}.`,
+    complete_package: (dt) => `Each package includes a device and a bandage pack (5 bandages). Price: ${dt}.`,
+  };
+
+  const quantityLabel = quantityCopyLabels[selectedProduct];
+  const quantityHint = quantityCopyHints[selectedProduct](getProductDisplayText(selectedProduct));
 
   // Floating animation gated on reduced motion
   const floatY = reduceMotion ? undefined : { y: [0, -10, 0] };
@@ -493,64 +481,77 @@ export default function Landing() {
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-            {productOptions.map((p) => (
-              <motion.div
-                key={p.id}
-                variants={fadeUp}
-                whileHover={{ y: -6 }}
-                transition={{ type: "spring", stiffness: 240, damping: 20 }}
-                className={`relative rounded-3xl p-8 border flex flex-col ${
-                  p.highlight
-                    ? "bg-gradient-to-br from-primary to-indigo-700 text-white border-primary shadow-2xl shadow-primary/25 md:scale-[1.03]"
-                    : "bg-white text-foreground border-primary/10 shadow-lg hover:shadow-xl"
-                }`}
-              >
-                {p.highlight && (
-                  <div className="absolute -top-3 right-6 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-md">
-                    Recommended
-                  </div>
-                )}
-                <div className="flex items-center justify-between mb-5">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    p.highlight ? "bg-white/15" : "bg-primary/10 text-primary"
-                  }`}>
-                    <Package className="w-6 h-6" />
-                  </div>
-                  <img
-                    src={LOGO_SRC}
-                    alt=""
-                    aria-hidden
-                    className={`h-6 w-auto ${p.highlight ? "brightness-0 invert opacity-80" : "opacity-70"}`}
-                  />
-                </div>
-                <h3 className="text-2xl font-bold mb-1">{p.title}</h3>
-                <div className={`text-sm mb-5 ${p.highlight ? "text-white/70" : "text-muted-foreground"}`}>
-                  {p.subtitle}
-                </div>
-                <div className="flex items-baseline gap-2 mb-5">
-                  <span className="text-3xl font-bold tracking-tight">{p.price}</span>
-                </div>
-                <p className={`text-sm leading-relaxed mb-6 ${p.highlight ? "text-white/85" : "text-muted-foreground"}`}>
-                  {p.description}
-                </p>
-                <ul className="space-y-3 mb-8 flex-1">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-3 text-sm">
-                      <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5 text-accent" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  size="lg"
-                  variant={p.highlight ? "secondary" : "default"}
-                  className={`rounded-full w-full h-12 ${p.highlight ? "bg-white text-primary hover:bg-white/90" : ""}`}
-                  onClick={() => selectProduct(p.id)}
-                >
-                  {p.cta}
-                </Button>
-              </motion.div>
-            ))}
+            {isProductsLoading ? (
+              [0, 1, 2].map((i) => (
+                <div key={i} className="rounded-3xl p-8 border bg-white animate-pulse h-64 shadow-lg" />
+              ))
+            ) : (
+              (liveProducts.length > 0 ? liveProducts : [
+                { productKey: "bandage_pack" as ProductSelection, name: "Enzora Bandage Pack", description: "For simple visual color-guided monitoring at home.", price: null, currency: "USD", priceLabel: null, displayText: "Contact us for pricing" },
+                { productKey: "smart_device" as ProductSelection, name: "Enzora Smart Device", description: "Reads Enzora bandage color changes and connects to the mobile app.", price: null, currency: "USD", priceLabel: null, displayText: "Contact us for pricing" },
+                { productKey: "complete_package" as ProductSelection, name: "Complete Enzora Package", description: "Full Enzora monitoring experience.", price: null, currency: "USD", priceLabel: null, displayText: "Contact us for pricing" },
+              ] as Product[]).map((p) => {
+                const meta = PRODUCT_STATIC_META[p.productKey] ?? { subtitle: "", features: [], cta: "Order Now", highlight: false };
+                return (
+                  <motion.div
+                    key={p.productKey}
+                    variants={fadeUp}
+                    whileHover={{ y: -6 }}
+                    transition={{ type: "spring", stiffness: 240, damping: 20 }}
+                    className={`relative rounded-3xl p-8 border flex flex-col ${
+                      meta.highlight
+                        ? "bg-gradient-to-br from-primary to-indigo-700 text-white border-primary shadow-2xl shadow-primary/25 md:scale-[1.03]"
+                        : "bg-white text-foreground border-primary/10 shadow-lg hover:shadow-xl"
+                    }`}
+                  >
+                    {meta.highlight && (
+                      <div className="absolute -top-3 right-6 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                        Recommended
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between mb-5">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                        meta.highlight ? "bg-white/15" : "bg-primary/10 text-primary"
+                      }`}>
+                        <Package className="w-6 h-6" />
+                      </div>
+                      <img
+                        src={LOGO_SRC}
+                        alt=""
+                        aria-hidden
+                        className={`h-6 w-auto ${meta.highlight ? "brightness-0 invert opacity-80" : "opacity-70"}`}
+                      />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-1">{p.name}</h3>
+                    <div className={`text-sm mb-5 ${meta.highlight ? "text-white/70" : "text-muted-foreground"}`}>
+                      {meta.subtitle}
+                    </div>
+                    <div className="flex items-baseline gap-2 mb-5">
+                      <span className="text-3xl font-bold tracking-tight">{p.displayText}</span>
+                    </div>
+                    <p className={`text-sm leading-relaxed mb-6 ${meta.highlight ? "text-white/85" : "text-muted-foreground"}`}>
+                      {p.description}
+                    </p>
+                    <ul className="space-y-3 mb-8 flex-1">
+                      {meta.features.map((f) => (
+                        <li key={f} className="flex items-start gap-3 text-sm">
+                          <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5 text-accent" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Button
+                      size="lg"
+                      variant={meta.highlight ? "secondary" : "default"}
+                      className={`rounded-full w-full h-12 ${meta.highlight ? "bg-white text-primary hover:bg-white/90" : ""}`}
+                      onClick={() => selectProduct(p.productKey)}
+                    >
+                      {meta.cta}
+                    </Button>
+                  </motion.div>
+                );
+              })
+            )}
           </div>
         </div>
       </Section>
@@ -681,18 +682,26 @@ export default function Landing() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="bandage_pack">Enzora Bandage Pack - 5 bandages - $20</SelectItem>
-                            <SelectItem value="smart_device">Enzora Smart Device - Contact us for pricing</SelectItem>
-                            <SelectItem value="complete_package">Complete Enzora Package - Device + bandage pack</SelectItem>
+                            {(liveProducts.length > 0
+                              ? liveProducts
+                              : [
+                                  { productKey: "bandage_pack" as ProductSelection, name: "Enzora Bandage Pack", displayText: "Contact us for pricing", description: "", price: null, currency: "USD", priceLabel: null },
+                                  { productKey: "smart_device" as ProductSelection, name: "Enzora Smart Device", displayText: "Contact us for pricing", description: "", price: null, currency: "USD", priceLabel: null },
+                                  { productKey: "complete_package" as ProductSelection, name: "Complete Enzora Package", displayText: "Contact us for pricing", description: "", price: null, currency: "USD", priceLabel: null },
+                                ] as Product[]
+                            ).map((p) => {
+                              const meta = PRODUCT_STATIC_META[p.productKey];
+                              const label = meta?.subtitle
+                                ? `${p.name} - ${meta.subtitle} - ${p.displayText}`
+                                : `${p.name} - ${p.displayText}`;
+                              return (
+                                <SelectItem key={p.productKey} value={p.productKey}>
+                                  {label}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
-                        {selectedProduct === "bandage_pack" && (
-                          <div className="mt-2 rounded-lg bg-primary/5 border border-primary/10 px-3 py-2 space-y-0.5">
-                            <p className="text-xs font-medium text-primary">$20 per pack</p>
-                            <p className="text-xs text-muted-foreground">Each pack includes 5 bandages.</p>
-                            <p className="text-xs text-muted-foreground">Equivalent local payment options can be discussed after submission.</p>
-                          </div>
-                        )}
                         <FormMessage />
                       </FormItem>
                     )} />

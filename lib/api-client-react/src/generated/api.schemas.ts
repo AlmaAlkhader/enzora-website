@@ -41,6 +41,38 @@ export const ProductSelection = {
   complete_package: 'complete_package',
 } as const;
 
+export interface Product {
+  productKey: ProductSelection;
+  name: string;
+  description: string;
+  price?: number | null;
+  currency: string;
+  priceLabel?: string | null;
+  displayText: string;
+}
+
+export interface AdminProduct {
+  productKey: ProductSelection;
+  name: string;
+  description: string;
+  price?: number | null;
+  currency: string;
+  priceLabel?: string | null;
+  displayText: string;
+  isActive: boolean;
+}
+
+export interface UpdateProductInput {
+  /** @minLength 1 */
+  name: string;
+  description: string;
+  price?: number | null;
+  /** @minLength 1 */
+  currency: string;
+  priceLabel?: string | null;
+  isActive: boolean;
+}
+
 export interface CreateOrderInput {
   /** @minLength 1 */
   fullName: string;
@@ -78,6 +110,10 @@ export interface Order {
   customerType: CustomerType;
   productSelection: ProductSelection;
   quantity: number;
+  productNameSnapshot?: string | null;
+  productPriceSnapshot?: number | null;
+  productCurrencySnapshot?: string | null;
+  totalEstimatedPrice?: number | null;
   message?: string | null;
   status: OrderStatus;
   createdAt: string;

@@ -29,6 +29,10 @@ export function serializeOrder(row: OrderRow) {
       | "smart_device"
       | "complete_package",
     quantity: row.quantity,
+    productNameSnapshot: row.productNameSnapshot ?? null,
+    productPriceSnapshot: row.productPriceSnapshot != null ? parseFloat(row.productPriceSnapshot) : null,
+    productCurrencySnapshot: row.productCurrencySnapshot ?? null,
+    totalEstimatedPrice: row.totalEstimatedPrice != null ? parseFloat(row.totalEstimatedPrice) : null,
     message: row.message ?? null,
     status: row.status as
       | "new"

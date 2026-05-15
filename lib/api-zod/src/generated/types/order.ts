@@ -21,6 +21,10 @@ export interface Order {
   customerType: CustomerType;
   productSelection: ProductSelection;
   quantity: number;
+  productNameSnapshot?: string | null;
+  productPriceSnapshot?: number | null;
+  productCurrencySnapshot?: string | null;
+  totalEstimatedPrice?: number | null;
   message?: string | null;
   status: OrderStatus;
   createdAt: Date;

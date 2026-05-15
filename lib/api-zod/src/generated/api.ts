@@ -40,6 +40,21 @@ export const CreateOrderBody = zod.object({
 
 
 /**
+ * @summary List active products with live pricing
+ */
+export const ListProductsResponseItem = zod.object({
+  "productKey": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
+  "name": zod.string(),
+  "description": zod.string(),
+  "price": zod.number().nullish(),
+  "currency": zod.string(),
+  "priceLabel": zod.string().nullish(),
+  "displayText": zod.string()
+})
+export const ListProductsResponse = zod.array(ListProductsResponseItem)
+
+
+/**
  * @summary Get the public social media links
  */
 export const GetSocialLinksResponse = zod.object({
@@ -93,6 +108,54 @@ export const AdminMeResponse = zod.object({
 
 
 /**
+ * @summary List all products including inactive (admin)
+ */
+export const AdminListProductsResponseItem = zod.object({
+  "productKey": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
+  "name": zod.string(),
+  "description": zod.string(),
+  "price": zod.number().nullish(),
+  "currency": zod.string(),
+  "priceLabel": zod.string().nullish(),
+  "displayText": zod.string(),
+  "isActive": zod.boolean()
+})
+export const AdminListProductsResponse = zod.array(AdminListProductsResponseItem)
+
+
+/**
+ * @summary Update a product's price and details
+ */
+export const AdminUpdateProductParams = zod.object({
+  "product_key": zod.coerce.string()
+})
+
+
+
+
+
+export const AdminUpdateProductBody = zod.object({
+  "name": zod.string().min(1),
+  "description": zod.string(),
+  "price": zod.number().nullish(),
+  "currency": zod.string().min(1),
+  "priceLabel": zod.string().nullish(),
+  "isActive": zod.boolean()
+})
+
+export const AdminUpdateProductResponse = zod.object({
+  "productKey": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
+  "name": zod.string(),
+  "description": zod.string(),
+  "price": zod.number().nullish(),
+  "currency": zod.string(),
+  "priceLabel": zod.string().nullish(),
+  "displayText": zod.string(),
+  "isActive": zod.boolean()
+})
+
+
+/**
  * @summary List orders (admin)
  */
 export const ListOrdersQueryParams = zod.object({
@@ -112,6 +175,10 @@ export const ListOrdersResponseItem = zod.object({
   "customerType": zod.enum(['patient', 'caregiver', 'clinic', 'hospital', 'research', 'other']),
   "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "quantity": zod.number(),
+  "productNameSnapshot": zod.string().nullish(),
+  "productPriceSnapshot": zod.number().nullish(),
+  "productCurrencySnapshot": zod.string().nullish(),
+  "totalEstimatedPrice": zod.number().nullish(),
   "message": zod.string().nullish(),
   "status": zod.enum(['new', 'contacted', 'confirmed', 'completed', 'rejected']),
   "createdAt": zod.coerce.date()
@@ -143,6 +210,10 @@ export const GetOrdersSummaryResponse = zod.object({
   "customerType": zod.enum(['patient', 'caregiver', 'clinic', 'hospital', 'research', 'other']),
   "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "quantity": zod.number(),
+  "productNameSnapshot": zod.string().nullish(),
+  "productPriceSnapshot": zod.number().nullish(),
+  "productCurrencySnapshot": zod.string().nullish(),
+  "totalEstimatedPrice": zod.number().nullish(),
   "message": zod.string().nullish(),
   "status": zod.enum(['new', 'contacted', 'confirmed', 'completed', 'rejected']),
   "createdAt": zod.coerce.date()
@@ -169,6 +240,10 @@ export const GetOrderResponse = zod.object({
   "customerType": zod.enum(['patient', 'caregiver', 'clinic', 'hospital', 'research', 'other']),
   "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "quantity": zod.number(),
+  "productNameSnapshot": zod.string().nullish(),
+  "productPriceSnapshot": zod.number().nullish(),
+  "productCurrencySnapshot": zod.string().nullish(),
+  "totalEstimatedPrice": zod.number().nullish(),
   "message": zod.string().nullish(),
   "status": zod.enum(['new', 'contacted', 'confirmed', 'completed', 'rejected']),
   "createdAt": zod.coerce.date()
@@ -198,6 +273,10 @@ export const UpdateOrderStatusResponse = zod.object({
   "customerType": zod.enum(['patient', 'caregiver', 'clinic', 'hospital', 'research', 'other']),
   "productSelection": zod.enum(['bandage_pack', 'smart_device', 'complete_package']),
   "quantity": zod.number(),
+  "productNameSnapshot": zod.string().nullish(),
+  "productPriceSnapshot": zod.number().nullish(),
+  "productCurrencySnapshot": zod.string().nullish(),
+  "totalEstimatedPrice": zod.number().nullish(),
   "message": zod.string().nullish(),
   "status": zod.enum(['new', 'contacted', 'confirmed', 'completed', 'rejected']),
   "createdAt": zod.coerce.date()

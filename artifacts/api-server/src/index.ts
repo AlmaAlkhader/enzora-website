@@ -1,6 +1,7 @@
 import { runMigrations } from "@workspace/db";
 import app from "./app";
 import { logger } from "./lib/logger";
+import { seedProducts } from "./lib/seed";
 
 const rawPort = process.env["PORT"];
 
@@ -29,6 +30,10 @@ async function main() {
     }
 
     logger.info({ port }, "Server listening");
+
+    seedProducts().catch((seedErr) => {
+      logger.error({ err: seedErr }, "Failed to seed products");
+    });
   });
 }
 
