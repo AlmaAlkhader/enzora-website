@@ -1,0 +1,63 @@
+I want to push the Enzora website to GitHub using a clean repository hierarchy.
+
+Please organize the project into this structure:
+
+enzora/
+├── README.md
+├── .gitignore
+├── website/
+│   ├── package.json
+│   ├── src/
+│   ├── public/
+│   ├── index.html
+│   └── README.md
+├── app/
+│   └── README.md
+├── docs/
+│   ├── screenshots/
+│   └── diagrams/
+├── hardware/
+│   └── README.md
+└── firebase/
+    └── firebase-setup.md
+
+Important requirements:
+
+1. Move all current website code into the `website/` folder.
+2. Do not delete or break any existing website files.
+3. Make sure the website still runs correctly from inside the `website/` folder.
+4. If needed, update paths, scripts, or configuration files so the website works normally.
+5. Create placeholder folders for `app/`, `docs/`, `hardware/`, and `firebase/`, but do not add fake app files.
+6. Add a clear main `README.md` explaining the full Enzora project and the repository structure.
+7. Add a separate `website/README.md` explaining how to run the website locally.
+8. Add a safe `.gitignore` file that excludes:
+   - node_modules
+   - .env files
+   - build/dist files
+   - logs
+   - .DS_Store
+   - Firebase private keys
+9. Do not push any secrets, API keys, Firebase admin SDK files, or private environment variables.
+10. After restructuring, prepare the project so I can push it to GitHub.
+
+Use this GitHub repository description:
+
+“Enzora is a health-tech project that connects a smart wound-care device with a website and mobile app to support wound monitoring, infection risk detection, user alerts, and product access.”
+
+For the main README, include:
+- Project title: Enzora
+- Short project description
+- Repository structure
+- Main technologies used
+- Website overview
+- Future app folder explanation
+- Hardware and Firebase documentation sections
+- Instructions for running the website locally
+
+For the website README, include:
+- How to install dependencies
+- How to run the website
+- How to build it
+- Notes about environment variables if needed
+
+Before finishing, check that the final folder structure is correct and that the website can still run successfully.

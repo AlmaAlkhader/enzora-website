@@ -47,3 +47,18 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Firebase credentials and admin SDK private keys
+*serviceAccount*.json
+firebase-adminsdk-*.json
+firebase/*-key.json
+firebase/*.json
+
+# Logs
+*.log
+logs/
